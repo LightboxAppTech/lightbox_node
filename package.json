@@ -1,0 +1,41 @@
+{
+  "name": "lightbox",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nikhil1999/node-lightbox.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nikhil1999/node-lightbox/issues"
+  },
+  "homepage": "https://github.com/Nikhil1999/node-lightbox#readme",
+  "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "aws-sdk": "^2.769.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-limiter": "^1.6.1",
+    "file-type": "^15.0.1",
+    "googleapis": "^66.0.0",
+    "helmet": "^4.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.9.27",
+    "multer": "^1.4.2",
+    "multiparty": "^4.2.2",
+    "nodemailer": "^6.4.16",
+    "sharp": "^0.26.2",
+    "socket.io": "^2.3.0",
+    "stopword": "^1.0.7"
+  }
+}

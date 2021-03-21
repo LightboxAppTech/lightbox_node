@@ -23,6 +23,7 @@ async function dashboard(req, res) {
 
     let data = await Post.find({
       owner_id: { $in: connectionList },
+      is_deleted: false,
     })
       .lean(true)
       .sort({ createdAt: -1 })
@@ -34,6 +35,7 @@ async function dashboard(req, res) {
 
     data = await Post.find({
       owner_id: { $in: sameBranchUserWithoutConnections },
+      is_deleted: false,
     })
       .sort({ createdAt: -1 })
       // .limit(3)
@@ -42,7 +44,7 @@ async function dashboard(req, res) {
       .lean(true);
     data.forEach((post) => homeData.push(post));
 
-    data = await Post.find({ owner_id: { $eq: user._id } })
+    data = await Post.find({ owner_id: { $eq: user._id }, is_deleted: false })
       .sort({ createdAt: -1 })
       // .limit(3)
       .skip((resultsPerPage * page - resultsPerPage) / 3)

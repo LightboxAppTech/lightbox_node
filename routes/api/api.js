@@ -18,6 +18,9 @@ const cancelProjectRequest = require("../../controller/api/project")
 const password = require("../../controller/api/password");
 const account = require("../../controller/api/account");
 const { search } = require("../../controller/api/search");
+const {
+  verifyForgotPasswordCode,
+} = require("../../controller/api/forgotPassword");
 
 /**
  *
@@ -27,9 +30,10 @@ const { search } = require("../../controller/api/search");
 
 // to register new user
 router.post("/register", register);
-router.get("/verify_email", emailVerification);
+router.post("/verify_email", emailVerification);
 router.post("/change_password", password.changePassword);
 router.post("/verify_account", account.verifyAccount);
+router.post("/verify_forgotPasswordCode", verifyForgotPasswordCode);
 router.post("/login", login);
 
 // to authenticate user
@@ -55,6 +59,8 @@ router.get("/get_all_my_posts", authentication, post.getMyAllPost);
 // get single post
 router.get("/getpost", authentication, post.getSinglePost);
 
+router.post("/delete_post", authentication, post.deletePost);
+
 // to make a comment on the post
 router.post("/comment", authentication, post.addComment);
 
@@ -77,6 +83,8 @@ router.get("/get_all_projects", authentication, project.getAllProjects);
 router.get("/get_all_my_projects", authentication, project.fetchAllMyProject);
 // to request new project
 router.post("/join_project", authentication, project.requestToJoin);
+// to delete project
+router.post("/delete_project", authentication, project.deleteProject);
 // to withdraw request made
 router.post(
   "/cancel_project_request",
@@ -134,12 +142,17 @@ router.get("/request_made", authentication, connections.myRequests);
 
 router.get("/myconnections", authentication, connections.myConnections);
 
+router.get("/project_members", authentication, project.getProjectMembers);
+
 // to fetch notifications
 router.get(
   "/fetch_notifications",
   authentication,
   notification.fetchNotification
 );
+
+// to fetch notifications
+router.post("/mark_all_as_read", authentication, notification.markAllAsRead);
 
 // Search
 router.get("/search", authentication, search);

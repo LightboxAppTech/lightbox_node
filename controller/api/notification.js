@@ -69,7 +69,30 @@ const markAsRead = async (req, res) => {
   }
 };
 
+const markAllAsRead = async (req, res) => {
+  try {
+    const user = await sessionUser(req, res);
+
+    Notification.updateMany(
+      { receiver: user._id },
+      {
+        $set: { is_unread: false },
+      },
+      (err, data) => {
+        if (err) {
+          throw err;
+        }
+        res.json({ message: "All Notifications are marked as read" });
+      }
+    );
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Something Went Wrong" });
+  }
+};
+
 module.exports = {
   fetchNotification: getNotifications,
   markAsRead: markAsRead,
+  markAllAsRead: markAllAsRead,
 };

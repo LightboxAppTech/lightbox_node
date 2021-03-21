@@ -6,9 +6,12 @@ const emailRegEx = RegExp(/^[a-zA-Z0-9._]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
 
 const veriyfyEmail = async (req, res) => {
   try {
-    const emailId = req.query.email
-      ? req.query.email.toString().trim()
+    const emailId = req.body.email
+      ? req.body.email.toString().trim()
       : undefined;
+    // const emailId = req.query.email
+    //   ? req.query.email.toString().trim()
+    //   : undefined;
     if (
       emailId === undefined ||
       emailId === "" ||

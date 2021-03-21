@@ -41,14 +41,29 @@ const search = async (req, res) => {
 
     // console.log(tmp1);
 
+    const queriedUsers = [];
+    users1.forEach((user) => {
+      queriedUsers.push(user._id);
+    });
+    tmp1.forEach((user) => {
+      queriedUsers.push(user._id);
+    });
+
+    // const projectsOfQueriedUsers = await Project.find({
+    //   project_leader: { $in: queriedUsers },
+    // });
+    // console.log(projectsOfQueriedUsers);
+
     const projectData = [];
 
-    const projects = await Project.find({
+    var projects = await Project.find({
+      is_deleted: false,
       $or: [
         { project_requirement: { $in: capitalTokens } },
         { project_requirement: { $in: tokens } },
         { project_domain: { $in: capitalTokens } },
         { project_domain: { $in: tokens } },
+        { project_leader: { $in: queriedUsers } },
       ],
     })
       .lean(true)
@@ -76,6 +91,7 @@ const search = async (req, res) => {
     const tmp2Data = [];
 
     const tmp2 = await Project.find({
+      is_deleted: false,
       $text: { $search: searchQuery, $caseSensitive: false },
     })
       .lean(true)
@@ -104,7 +120,9 @@ const search = async (req, res) => {
     const postData = [];
 
     const posts = await Post.find({
+      is_deleted: false,
       $or: [
+        { owner_id: { $in: queriedUsers } },
         { tags: { $in: tokens } },
         { tags: { $in: capitalTokens } },
         // { $text: { $search: searchQuery, $caseSensitive: true } },
@@ -134,6 +152,7 @@ const search = async (req, res) => {
     const tmp3Data = [];
 
     const tmp3 = await Post.find({
+      is_deleted: false,
       $text: { $search: searchQuery, $caseSensitive: false },
     })
       .lean(true)

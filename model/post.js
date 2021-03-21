@@ -37,6 +37,10 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    is_deleted: {
+      type: mongoose.Schema.Types.Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

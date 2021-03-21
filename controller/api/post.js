@@ -51,23 +51,43 @@ const addOrUpdatePost = async (req, res) => {
        * TODO : ask for description and tags both during post update
        *
        */
-      let p = await Post.findById(postId).lean(true);
+      let p = await Post.findOne({ _id: postId, is_deleted: false }).lean(true);
       if (p.owner_id.toString() != user._id.toString())
         return res.status(403).end();
 
-      const updatedPost = await Post.findOneAndUpdate(
-        { $and: [{ _id: { $eq: postId } }, { owner_id: { $eq: user._id } }] },
+      const updatedUrls = await upload(req.body.images);
+      req.body.post_image = updatedUrls;
+
+      var updatedPost = await Post.findOneAndUpdate(
+        {
+          $and: [
+            { _id: { $eq: postId } },
+            { owner_id: { $eq: user._id } },
+            { is_deleted: false },
+          ],
+        },
         {
           $set: {
             description: req.body.description,
             // owner_id: user._id,
-            // post_image: req.body.post_image,
+            post_image: req.body.post_image,
             tags: req.body.tags,
           },
         },
         { useFindAndModify: false, upsert: false, new: true, timestamps: true }
       );
-      return res.json({ message: "updated" });
+      if (updatedPost) {
+        const plead = await UserProfile.findById(updatedPost.owner_id).lean(
+          true
+        );
+        updatedPost = updatedPost.toObject();
+        return res.json({
+          ...updatedPost,
+          ...plead,
+          _id: updatedPost._id,
+        });
+      }
+      return res.status(500).json({ message: "Error updating Post" });
     }
   } catch (err) {
     console.error(err);
@@ -79,7 +99,7 @@ const comment = async (req, res) => {
   try {
     const pid = req.body._id;
     const user = await sessionUser(req, res);
-    const postData = await Post.findById(pid);
+    const postData = await Post.findOne({ _id: pid, is_deleted: false });
 
     if (user == null || pid == undefined || postData == null) {
       return res.status(400).json({ message: "Bad Request" });
@@ -110,7 +130,7 @@ const comment = async (req, res) => {
 
         let notificationObject = new Notification({
           thumbnail_pic: user.thumbnail_pic == "" ? "" : user.thumbnail_pic,
-          message: `${user.fname} ${user.lname} commented on your post`,
+          message: `${user.fname} ${user.lname} commented on your Post`,
           is_unread: true,
           url: `/posts/${pid}`,
           receiver: postData.owner_id,
@@ -126,7 +146,13 @@ const comment = async (req, res) => {
         ) {
           notificationObject.uid = user._id;
           let io = req.app.get("io");
-          io.to(targetSocketId).emit("commentNotification", notificationObject);
+          io.to(targetSocketId).emit("commentNotification", {
+            notificationObject,
+            data: {
+              fname: user.fname,
+              lname: user.lname,
+            },
+          });
         }
 
         if (err) {
@@ -146,7 +172,7 @@ const voteThePost = async (req, res) => {
     const flag = req.body.flag;
     const user = await sessionUser(req, res);
     const pid = req.body.pid;
-    const postData = await Post.findById(pid);
+    const postData = await Post.findOne({ _id: pid, is_deleted: false });
     if (
       flag === undefined ||
       pid === undefined ||
@@ -189,10 +215,13 @@ const voteThePost = async (req, res) => {
 
             notificationObject.uid = user._id;
             let io = req.app.get("io");
-            io.to(targetSocketId).emit(
-              "upvoteNotification",
-              notificationObject
-            );
+            io.to(targetSocketId).emit("upvoteNotification", {
+              notificationObject,
+              data: {
+                fname: user.fname,
+                lname: user.lname,
+              },
+            });
           }
 
           if (err) {
@@ -226,7 +255,7 @@ const getPostDetail = async (req, res) => {
     const pid = req.query.pid;
     if (!pid) return res.status(400).json({ message: "Post id Required" });
 
-    Post.findById(pid)
+    Post.findOne({ _id: pid, is_deleted: false })
       .lean(true)
       .then(async (data) => {
         let user = data ? await UserProfile.findById(data.owner_id) : {};
@@ -238,15 +267,16 @@ const getPostDetail = async (req, res) => {
           title: user.title,
         };
         data.thumbnail_pic = user.thumbnail_pic == "" ? "" : user.thumbnail_pic;
-        return res.json(data);
+        if (data.is_deleted !== undefined) return res.json(data);
+        else return res.json({ is_deleted: true });
       })
       .catch((e) => {
         console.error(e);
-        res.status(500).json({ message: "Something Went Wrong" });
+        return res.status(500).json({ message: "Something Went Wrong" });
       });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ message: "Something Went Wrong" });
+    return res.status(500).json({ message: "Something Went Wrong" });
   }
 };
 
@@ -259,7 +289,7 @@ const getMyAllPost = async (req, res) => {
       user = await sessionUser(req, res);
     }
 
-    let myPosts = await Post.find({ owner_id: user._id })
+    let myPosts = await Post.find({ owner_id: user._id, is_deleted: false })
       .lean(true)
       .sort({ createdAt: -1 });
     if (myPosts.length == 0) {
@@ -290,7 +320,10 @@ const getComments = async (req, res) => {
     if (pid == undefined)
       return res.status(400).json({ message: "Bad Request" });
 
-    let postComments = await Post.findById(pid, { comments: 1, _id: 1 });
+    let postComments = await Post.findOne(
+      { _id: pid, is_deleted: false },
+      { comments: 1, _id: 1 }
+    );
     if (postComments != null) {
       postComments.comments = postComments.comments.reverse();
     }
@@ -301,6 +334,35 @@ const getComments = async (req, res) => {
   }
 };
 
+const deletePost = async (req, res) => {
+  // notify all user currently working on team
+  try {
+    const pid = req.body._id;
+    if (!pid) {
+      return res.status(400).json({ message: "Post Id Required" });
+    }
+    const user = await sessionUser(req, res);
+    const post = await Post.findOne({ _id: pid, is_deleted: false });
+    if (user._id.toString() !== post.owner_id.toString()) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    post.is_deleted = true;
+
+    post
+      .save({ timestamps: true })
+      .then((data) => {
+        return res.json({ message: "Post Deleted Successfully" });
+      })
+      .catch((e) => {
+        console.error(e);
+        return res.status(500).json({ message: "Something Went Wrong" });
+      });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ message: "Something Went Wrong" });
+  }
+};
+
 module.exports = {
   addOrUpdatePost: addOrUpdatePost,
   addComment: comment,
@@ -308,4 +370,5 @@ module.exports = {
   getSinglePost: getPostDetail,
   getMyAllPost: getMyAllPost,
   getComments: getComments,
+  deletePost: deletePost,
 };

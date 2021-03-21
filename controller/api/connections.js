@@ -1,4 +1,5 @@
 const UserProfile = require("../../model/user_profile");
+const User = require("../../model/user");
 const { getSocket } = require("../../utility/socket");
 const sessionUser = require("./utils/get/user");
 const { Notification } = require("../../model/notification");
@@ -390,12 +391,15 @@ const pendingRequest = async (req, res) => {
     if (user === null) return res.status(400).json({ message: "Bad Request" });
 
     const { requestsReceived } = await UserProfile.findById(user._id);
+    // console.log("Total requests: ", requestsReceived);
     const pendingRequestData = [];
     if (requestsReceived.length === 0) return res.json(pendingRequestData);
+
     requestsReceived.forEach(async (id) => {
       try {
         let user = await UserProfile.findById(id);
         if (!user) {
+          console.log("User already deleted man !");
           return res.send([]);
         }
         let {
@@ -476,10 +480,13 @@ const myConnections = async (req, res) => {
         lname,
       } = await UserProfile.findById(id);
 
+      var user = await User.findById(id).lean(true);
+
       connectionData.push({
         thumbnail_pic,
         uid,
         title,
+        email: user.email,
         branch,
         semester,
         fname,

@@ -19,12 +19,13 @@ module.exports = {
       var pid = req.body._id;
 
       if (pid !== undefined) {
-        Project.findOneAndUpdate(
+        const updatedProject = await Project.findOneAndUpdate(
           {
             $and: [
               { _id: { $eq: pid } },
               { project_leader: { $eq: user._id } },
             ],
+            is_deleted: false,
           },
           {
             $set: {
@@ -46,14 +47,20 @@ module.exports = {
             new: true,
             useFindAndModify: false,
             timestamps: true,
-          },
-          (err, doc) => {
-            if (err) {
-              return res.status(500).json({ message: err });
-            }
-            return res.json(doc);
           }
-        );
+        ).lean(true);
+        if (updatedProject) {
+          const plead = await UserProfile.findById(
+            updatedProject.project_leader
+          ).lean(true);
+          return res.json({
+            ...updatedProject,
+            ...plead,
+            _id: updatedProject._id,
+          });
+        } else {
+          return res.status(500).json({ message: "Error updating Project" });
+        }
       } else {
         const project = new Project({
           project_leader: user._id,
@@ -74,8 +81,24 @@ module.exports = {
           is_deleted: false,
           is_completed: false,
         });
-        let doc = await project.save();
-        res.json(doc);
+        project
+          .save({ timestamps: true })
+          .then(async (data) => {
+            const plead = await UserProfile.findById(
+              project.project_leader
+            ).lean(true);
+            data = data.toObject();
+            // console.log(data.toJSON);
+            return res.json({ ...plead, ...data });
+          })
+          .catch((e) => {
+            console.error(e);
+            return res.status(500).json({ message: "Something went wrong" });
+          });
+
+        // SAMPLE SOCKET IO CHAT --- START
+        const roomId = project._id;
+        // SAMPLE SOCKET IO CHAT --- END
       }
     } catch (e) {
       console.error(e);
@@ -86,7 +109,7 @@ module.exports = {
     try {
       const pid = req.body.pid; //id of the project which is being requested
       const user = await sessionUser(req, res); // id of the requester
-      const project = await Project.findById(pid);
+      const project = await Project.findOne({ _id: pid, is_deleted: false });
       const flag = req.body.flag;
 
       if (!pid || project === null)
@@ -108,7 +131,7 @@ module.exports = {
 
       if (flag === true) {
         await Project.updateOne(
-          { _id: pid },
+          { _id: pid, is_deleted: false },
           { $pull: { project_requests: user._id } }
           // (err, data) => {
           //   return res.end();
@@ -123,7 +146,7 @@ module.exports = {
         return res.status(400).end();
 
       Project.updateOne(
-        { _id: pid },
+        { _id: pid, is_deleted: false },
         {
           $push: { project_requests: user._id },
         },
@@ -134,7 +157,7 @@ module.exports = {
 
           let notificationObject = new Notification({
             thumbnail_pic: user.thumbnail_pic,
-            message: `${user.fname} ${user.lname} requested to join project`,
+            message: `${user.fname} ${user.lname} requested to join Project : ${project.project_title}`,
             url: `/projects/${pid}`,
             is_unread: true,
             receiver: project.project_leader,
@@ -173,7 +196,10 @@ module.exports = {
     try {
       const user = await sessionUser(req, res);
       if (!user) return res.status(400).end();
-      const projects = await Project.find({ project_leader: user._id });
+      const projects = await Project.find({
+        project_leader: user._id,
+        is_deleted: false,
+      });
       const requesters = [];
 
       if (projects.length == 0) return res.json(requesters);
@@ -196,6 +222,7 @@ module.exports = {
             fname,
             lname,
             _id,
+            rid: _id + projects[i]._id,
             semester,
             thumbnail_pic: thumbnail_pic == undefined ? "" : thumbnail_pic,
             project_id: projects[i]._id,
@@ -223,7 +250,7 @@ module.exports = {
       if (!uid || !requester)
         return res.status(400).json({ message: "bad request" });
 
-      const project = await Project.findById(pid);
+      const project = await Project.findOne({ _id: pid, is_deleted: false });
       if (!project)
         return res
           .status(400)
@@ -233,7 +260,7 @@ module.exports = {
       }
 
       Project.updateOne(
-        { _id: pid },
+        { _id: pid, is_deleted: false },
         {
           $pull: { project_requests: requester._id },
           $push: { project_members: requester._id },
@@ -244,7 +271,7 @@ module.exports = {
           let io = req.app.get("io");
 
           let notificationObject = new Notification({
-            message: `You're now part of project ${project.project_title}`,
+            message: `You're now part of the Project: ${project.project_title}`,
             is_unread: true,
             url: `/projects/${pid}`,
             receiver: requester,
@@ -255,10 +282,14 @@ module.exports = {
 
           if (targetSocket !== undefined) {
             // put notification in database recent notification array
-            io.to(targetSocket).emit(
-              "projectRequestAcceptedNotification",
-              notificationObject
-            );
+            io.to(targetSocket).emit("projectRequestAcceptedNotification", {
+              notificationObject,
+              data: {
+                fname: user.fname,
+                lname: user.lname,
+                project_title: project.project_title,
+              },
+            });
           }
 
           if (err) throw new Error(err);
@@ -279,7 +310,7 @@ module.exports = {
       if (!uid || !requester)
         return res.status(400).json({ message: "bad request" });
 
-      const project = await Project.findById(pid);
+      const project = await Project.findOne({ _id: pid, is_deleted: false });
       if (!project)
         return res
           .status(400)
@@ -290,6 +321,7 @@ module.exports = {
       Project.updateOne(
         {
           _id: pid,
+          is_deleted: false,
         },
         {
           $pull: { project_requests: uid },
@@ -310,12 +342,12 @@ module.exports = {
       const pid = req.body._id;
       if (pid === undefined)
         return res.status(400).json({ message: "Project ID undefined" });
-      const project = await Project.findById(pid);
+      const project = await Project.findOne({ _id: pid, is_deleted: false });
       if (!project)
         return res.status(400).json({ message: "No such project exists" });
 
       Project.updateOne(
-        { _id: pid },
+        { _id: pid, is_deleted: false },
         {
           $pull: { project_requests: user._id },
         },
@@ -340,7 +372,7 @@ module.exports = {
         _id: pid,
         is_deleted: false,
       }).lean(true);
-      if (!project) return res.status(404).end();
+      if (!project) return res.json({ is_deleted: true });
       const plead = await UserProfile.findById(project.project_leader).lean(
         true
       );
@@ -392,8 +424,8 @@ module.exports = {
         return res.status(400).json({ message: "Project Id Required" });
       }
       const user = await sessionUser(req, res);
-      const project = await Project.findById(pid);
-      if (user._id !== project.project_leader) {
+      const project = await Project.findOne({ _id: pid, is_deleted: false });
+      if (user._id.toString() !== project.project_leader.toString()) {
         return res.status(403).json({ message: "Forbidden" });
       }
       project.is_deleted = true;
@@ -419,7 +451,7 @@ module.exports = {
         return res.status(400).json({ message: "Project Id Required" });
       }
       const user = await sessionUser(req, res);
-      const project = await Project.findById(pid);
+      const project = await Project.findOne({ _id: pid, is_deleted: false });
       if (project.is_deleted)
         return res.status(400).json({ message: "No Such Project Exist" });
       if (user._id !== project.project_leader) {
@@ -445,9 +477,13 @@ module.exports = {
   getAllProjects: async (req, res) => {
     try {
       let projectData = [];
+      let page = req.query.page;
+      let resultsPerPage = 6;
+
       const user = await sessionUser(req, res);
       const connectionList = user.connections;
-      const sameBranchUserWithoutConnections = await User.find(
+      // console.log("connected users: ", connectionList);
+      const sameBranchUserWithoutConnections = await UserProfile.find(
         {
           $and: [
             { _id: { $nin: connectionList } },
@@ -457,27 +493,49 @@ module.exports = {
         },
         { _id: 1 }
       );
+      // console.log(
+      //   "Same Branch user without connection : ",
+      //   sameBranchUserWithoutConnections
+      // );
+
       let data = await Project.find({
         project_leader: { $in: connectionList },
+        is_deleted: false,
       })
         .lean(true)
         .sort({ createdAt: -1 })
-        .limit(3);
+        .skip((resultsPerPage * page - resultsPerPage) / 3)
+        .limit(resultsPerPage / 3)
+        .lean(true);
+
+      // console.log("projects of connections : ", data);
 
       data.forEach((project) => projectData.push(project));
 
       data = await Project.find({
         project_leader: { $in: sameBranchUserWithoutConnections },
+        is_deleted: false,
       })
         .sort({ createdAt: -1 })
-        .limit(3)
+        .skip((resultsPerPage * page - resultsPerPage) / 3)
+        .limit(resultsPerPage / 3)
         .lean(true);
+
+      // console.log("projects of same branch without connection : ", data);
+
       data.forEach((project) => projectData.push(project));
 
-      data = await Project.find({ project_leader: { $eq: user._id } })
+      data = await Project.find({
+        project_leader: { $eq: user._id },
+        is_deleted: false,
+      })
         .sort({ createdAt: -1 })
-        .limit(3)
+        .skip((resultsPerPage * page - resultsPerPage) / 3)
+        .limit(resultsPerPage / 3)
         .lean(true);
+
+      // console.log("users's projects: ", data);
+
       data.forEach((project) => projectData.push(project));
 
       if (projectData.length < 1) {
@@ -512,7 +570,7 @@ module.exports = {
       const user = await sessionUser(req, res);
       const pid = req.body._id;
       if (!pid) return res.status(400).end();
-      const project = await Project.findById(pid);
+      const project = await Project.findOne({ _id: pid, is_deleted: false });
       if (!project) return res.status(400).end();
 
       let commentObject = new Comment({
@@ -524,7 +582,7 @@ module.exports = {
       });
 
       Project.updateOne(
-        { _id: pid },
+        { _id: pid, is_deleted: false },
         { $push: { comments: commentObject } },
         async (err, data) => {
           if (err) throw err;
@@ -533,7 +591,7 @@ module.exports = {
 
           let notificationObject = new Notification({
             thumbnail_pic: user.thumbnail_pic == "" ? "" : user.thumbnail_pic,
-            message: `${user.fname} ${user.lname} commented on your project`,
+            message: `${user.fname} ${user.lname} commented on your Project: ${project.project_title}`,
             is_unread: true,
             url: `/projects/${project._id}`,
             receiver: project.project_leader,
@@ -549,10 +607,14 @@ module.exports = {
           ) {
             // notificationObject.uid = user._id;
             let io = req.app.get("io");
-            io.to(targetSocket).emit(
-              "projectCommentNotification",
-              notificationObject
-            );
+            io.to(targetSocket).emit("projectCommentNotification", {
+              notificationObject,
+              data: {
+                fname: user.fname,
+                lname: user.lname,
+                project_title: project.project_title,
+              },
+            });
           }
           return res.json({ message: "comment made", _id: commentObject._id });
         }
@@ -566,9 +628,47 @@ module.exports = {
     try {
       const pid = req.query.pid;
       if (!pid) return res.status(400).end();
-      const project = await Project.findById(pid).lean(true);
+      const project = await Project.findOne({
+        _id: pid,
+        is_deleted: false,
+      }).lean(true);
       if (!project) return res.status(400).end();
       return res.json({ comments: project.comments.reverse() });
+    } catch (e) {
+      console.error(e);
+      return res.status(500).end();
+    }
+  },
+  getProjectMembers: async (req, res) => {
+    try {
+      const pid = req.query.pid;
+      if (!pid) return res.status(400).end();
+      const project = await Project.findOne({
+        _id: pid,
+        is_deleted: false,
+      }).lean(true);
+      if (!project) return res.status(400).end();
+      const members = [];
+      if (project.project_members.length == 0) return res.json([]);
+      for (let i = 0; i < project.project_members.length; i++) {
+        let userData = await UserProfile.findById(
+          project.project_members[i]
+        ).lean(true);
+        let userEmailData = await User.findById(
+          project.project_members[i]
+        ).lean(true);
+        members.push({
+          _id: userData._id,
+          fname: userData.fname,
+          lname: userData.lname,
+          email: userEmailData.email,
+          semester: userData.semester,
+          title: userData.title,
+          thumbnail_pic:
+            userData.thumbnail_pic == undefined ? "" : userData.thumbnail_pic,
+        });
+        if (i == project.project_members.length - 1) return res.json(members);
+      }
     } catch (e) {
       console.error(e);
       return res.status(500).end();

@@ -7,4 +7,5 @@ module.exports = Joi.object({
   comments: Joi.array().items(Joi.object()).default([]),
   _id: Joi.string().default(""),
   images: Joi.array().max(10).items(Joi.object()).default([]),
+  is_deleted: Joi.boolean().default(false),
 });

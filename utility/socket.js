@@ -95,6 +95,7 @@ function initSocket(io) {
             { project_members: { $elemMatch: { $eq: uid } } },
           ],
           is_deleted: false,
+          is_completed: false
         })
           .sort({ createdAt: -1 })
           .lean(true);

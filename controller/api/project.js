@@ -746,6 +746,7 @@ module.exports = {
             { project_members: { $elemMatch: { $eq: user._id } } },
           ],
           is_deleted: false,
+          is_completed: false
         })
           // .sort({ createdAt: -1 })
           .lean(true);

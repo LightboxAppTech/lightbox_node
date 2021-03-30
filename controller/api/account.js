@@ -61,7 +61,7 @@ const verifyAccount = async (req, res) => {
       .cookie("access-token", token, {
         maxAge: sevenDays,
         httpOnly: true,
-        secure: true,
+        secure: false,
         path: "/",
         sameSite: "none",
       })

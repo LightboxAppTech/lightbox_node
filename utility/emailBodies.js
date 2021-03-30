@@ -103,7 +103,7 @@ const welcomeEmailBody = (code) => {
                 "
               >
                 <p style="margin: 0;">
-                  There's one quick step you need to complete before crating
+                  There's one quick step you need to complete before creating
                   your Lightbox account. Let's make sure this is the right email
                   address to use for your new account. Please enter the given
                   verification code to get started on Lightbox:

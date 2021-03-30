@@ -4,7 +4,7 @@ module.exports = (req, res) => {
     maxAge: -10,
     httpOnly: true,
     sameSite: "none",
-    secure: true,
+    secure: false,
     path: "/",
   });
   res.json({ message: "logged out" });

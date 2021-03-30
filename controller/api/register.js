@@ -7,6 +7,7 @@ const emailRegEx = RegExp(/^[a-zA-Z0-9._]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
 const sevenDays = 7 * 24 * 60 * 60 * 1000;
 const generator = require("../../utility/codegenerator");
 const sendMail = require("../../utility/email");
+const { welcomeEmailBody } = require("../../utility/emailBodies");
 
 module.exports = async (req, res) => {
   try {
@@ -58,8 +59,9 @@ module.exports = async (req, res) => {
       await user.save();
     }
     let mailBody = {
-      text: `use verification code ${code.code} to activate your account \n if you've not requested verification you may safely ignore this email.`,
-      subject: "Account verification code, Lightbox!",
+      // text: `use verification code ${code.code} to activate your account \n if you've not requested verification you may safely ignore this email.`,
+      html: welcomeEmailBody(code.code),
+      subject: "Email Verification for your Lightbox Acccount"
     };
 
     await sendMail(mailBody, req.body.email);

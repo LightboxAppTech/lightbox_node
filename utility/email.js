@@ -33,7 +33,7 @@ module.exports = async (mail, userEmailId) => {
       from: `Lightbox <${process.env.OAUTH_USER}>`,
       to: userEmailId,
       subject: mail.subject,
-      text: mail.text,
+      html: mail.html,
     };
 
     return transport.sendMail(mailBody);

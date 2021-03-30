@@ -1,6 +1,7 @@
 const User = require("../../model/user");
 const sendMail = require("../../utility/email");
 const codeGenerator = require("../../utility/codegenerator");
+const { forgotPasswordEmailBody } = require("../../utility/emailBodies");
 
 const emailRegEx = RegExp(/^[a-zA-Z0-9._]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
 
@@ -46,9 +47,11 @@ const veriyfyEmail = async (req, res) => {
       { $set: { forgotPasswordVerification: code } }
     );
 
+
+
     const mailBody = {
-      subject: "Password reset request, Lightbox!",
-      text: `Please use verification code ${code.code} to reset account password \n if you've not requested password reset, you may safely ignore this email`,
+      subject: "Password Reset Request for your Lightbox Acccount",
+      html: forgotPasswordEmailBody(code.code)
     };
 
     await sendMail(mailBody, targetUser.email);

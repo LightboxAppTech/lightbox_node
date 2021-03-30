@@ -4,7 +4,6 @@ const Project = require("../../model/project");
 const Post = require("../../model/post");
 const sw = require("stopword");
 const sessionUser = require("../api/utils/get/user");
-const post = require("../../model/post");
 
 const search = async (req, res) => {
   try {
@@ -17,16 +16,18 @@ const search = async (req, res) => {
     for (let i = 0; i < tokens.length; i++) {
       capitalTokens.push(tokens[i][0].toUpperCase() + tokens[i].substring(1));
     }
-    // console.log(tokens);
 
     const searchQuery = tokens.join(" ");
-    // console.log(searchQuery);
     const searchResult = { posts: [], users: [], projects: [] };
 
     const users1 = await User.find({
       $or: [
         { fname: { $in: capitalTokens } },
         { lname: { $in: capitalTokens } },
+        { fname: { $in: tokens } },
+        { lname: { $in: tokens } },
+        { college: { $in: capitalTokens } },
+        { college: { $in: tokens } }
         // { $text: { $search: searchQuery, $caseSensitive: true } },
       ],
       college: user.college,
@@ -39,8 +40,6 @@ const search = async (req, res) => {
       .lean(true)
       .limit(20);
 
-    // console.log(tmp1);
-
     const queriedUsers = [];
     users1.forEach((user) => {
       queriedUsers.push(user._id);
@@ -49,19 +48,19 @@ const search = async (req, res) => {
       queriedUsers.push(user._id);
     });
 
-    // const projectsOfQueriedUsers = await Project.find({
-    //   project_leader: { $in: queriedUsers },
-    // });
-    // console.log(projectsOfQueriedUsers);
-
     const projectData = [];
 
     var projects = await Project.find({
       is_deleted: false,
+      is_completed: false,
       $or: [
         { project_requirement: { $in: capitalTokens } },
         { project_requirement: { $in: tokens } },
-        { project_domain: { $in: capitalTokens } },
+        { project_requirement: { $elemMatch: { ...capitalTokens } } },
+        { project_requirement: { $elemMatch: { ...tokens } } },
+        { project_requirement: { $eq: query } },
+        { project_domain: { $elemMatch: { ...capitalTokens } } },
+        { project_domain: { $elemMatch: { query } } },
         { project_domain: { $in: tokens } },
         { project_leader: { $in: queriedUsers } },
       ],
@@ -92,6 +91,7 @@ const search = async (req, res) => {
 
     const tmp2 = await Project.find({
       is_deleted: false,
+      is_completed: false,
       $text: { $search: searchQuery, $caseSensitive: false },
     })
       .lean(true)
@@ -157,8 +157,6 @@ const search = async (req, res) => {
     })
       .lean(true)
       .limit(20);
-    // console.log(tmp3);
-    // console.log("======================");
 
     tmp3.forEach((post) => tmp3Data.push(post));
 
@@ -228,7 +226,7 @@ const search = async (req, res) => {
     // console.log("visited" + visited);
     return res.json(searchResult);
   } catch (e) {
-    // console.log(e);
+    console.log(e);
     return res.status(500).end();
   }
 };

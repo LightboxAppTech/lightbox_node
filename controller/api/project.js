@@ -6,6 +6,7 @@ const { Notification } = require("../../model/notification");
 const User = require("../../model/user");
 const UserProfile = require("../../model/user_profile");
 const project = require("../../model/project");
+const Room = require("./../../model/room");
 const Comment = require("../../model/comment");
 // const storeNotification = require("../../utility/notification");
 
@@ -26,6 +27,7 @@ module.exports = {
               { project_leader: { $eq: user._id } },
             ],
             is_deleted: false,
+            is_completed: false,
           },
           {
             $set: {
@@ -88,6 +90,12 @@ module.exports = {
               project.project_leader
             ).lean(true);
             data = data.toObject();
+            const newRoom = new Room({
+              room_name: project.project_title,
+              project_id: project._id,
+              messages: [],
+            });
+            await newRoom.save({ timestamps: true });
             // console.log(data.toJSON);
             return res.json({ ...plead, ...data });
           })
@@ -109,7 +117,11 @@ module.exports = {
     try {
       const pid = req.body.pid; //id of the project which is being requested
       const user = await sessionUser(req, res); // id of the requester
-      const project = await Project.findOne({ _id: pid, is_deleted: false });
+      const project = await Project.findOne({
+        _id: pid,
+        is_deleted: false,
+        is_completed: false,
+      });
       const flag = req.body.flag;
 
       if (!pid || project === null)
@@ -131,7 +143,7 @@ module.exports = {
 
       if (flag === true) {
         await Project.updateOne(
-          { _id: pid, is_deleted: false },
+          { _id: pid, is_deleted: false, is_completed: false },
           { $pull: { project_requests: user._id } }
           // (err, data) => {
           //   return res.end();
@@ -146,7 +158,7 @@ module.exports = {
         return res.status(400).end();
 
       Project.updateOne(
-        { _id: pid, is_deleted: false },
+        { _id: pid, is_deleted: false, is_completed: false },
         {
           $push: { project_requests: user._id },
         },
@@ -199,6 +211,7 @@ module.exports = {
       const projects = await Project.find({
         project_leader: user._id,
         is_deleted: false,
+        is_completed: false,
       });
       const requesters = [];
 
@@ -250,7 +263,11 @@ module.exports = {
       if (!uid || !requester)
         return res.status(400).json({ message: "bad request" });
 
-      const project = await Project.findOne({ _id: pid, is_deleted: false });
+      const project = await Project.findOne({
+        _id: pid,
+        is_deleted: false,
+        is_completed: false,
+      });
       if (!project)
         return res
           .status(400)
@@ -260,7 +277,7 @@ module.exports = {
       }
 
       Project.updateOne(
-        { _id: pid, is_deleted: false },
+        { _id: pid, is_deleted: false, is_completed: false },
         {
           $pull: { project_requests: requester._id },
           $push: { project_members: requester._id },
@@ -310,7 +327,11 @@ module.exports = {
       if (!uid || !requester)
         return res.status(400).json({ message: "bad request" });
 
-      const project = await Project.findOne({ _id: pid, is_deleted: false });
+      const project = await Project.findOne({
+        _id: pid,
+        is_deleted: false,
+        is_completed: false,
+      });
       if (!project)
         return res
           .status(400)
@@ -322,6 +343,7 @@ module.exports = {
         {
           _id: pid,
           is_deleted: false,
+          is_completed: false,
         },
         {
           $pull: { project_requests: uid },
@@ -347,7 +369,7 @@ module.exports = {
         return res.status(400).json({ message: "No such project exists" });
 
       Project.updateOne(
-        { _id: pid, is_deleted: false },
+        { _id: pid, is_deleted: false, is_completed: false },
         {
           $pull: { project_requests: user._id },
         },
@@ -392,9 +414,11 @@ module.exports = {
           { project_leader: { $eq: _id } },
           { project_members: { $elemMatch: { $eq: _id } } },
         ],
-        // is_completed: false,
+        is_completed: false,
         is_deleted: false,
-      }).lean(true);
+      })
+        .sort({ createdAt: -1 })
+        .lean(true);
 
       if (projects.length == 0) return res.json(projects);
 
@@ -432,7 +456,11 @@ module.exports = {
 
       project
         .save({ timestamps: true })
-        .then((data) => {
+        .then(async (data) => {
+          const deletedRoom = await Room.findOneAndUpdate(
+            { project_id: project._id },
+            { $set: { is_active: false } }
+          );
           return res.json({ message: "Project Deleted Successfully" });
         })
         .catch((e) => {
@@ -451,10 +479,14 @@ module.exports = {
         return res.status(400).json({ message: "Project Id Required" });
       }
       const user = await sessionUser(req, res);
-      const project = await Project.findOne({ _id: pid, is_deleted: false });
+      const project = await Project.findOne({
+        _id: pid,
+        is_deleted: false,
+        is_completed: false,
+      });
       if (project.is_deleted)
         return res.status(400).json({ message: "No Such Project Exist" });
-      if (user._id !== project.project_leader) {
+      if (user._id.toString() !== project.project_leader.toString()) {
         return res.status(403).json({ message: "Forbidden" });
       }
 
@@ -463,7 +495,7 @@ module.exports = {
       project
         .save({ timestamps: true })
         .then((data) => {
-          return res.json({ message: "Project Deleted Successfully" });
+          return res.status(200).json({ message: "Project Completed Successfully" });
         })
         .catch((e) => {
           console.error(e);
@@ -501,6 +533,7 @@ module.exports = {
       let data = await Project.find({
         project_leader: { $in: connectionList },
         is_deleted: false,
+        is_completed: false,
       })
         .lean(true)
         .sort({ createdAt: -1 })
@@ -515,6 +548,7 @@ module.exports = {
       data = await Project.find({
         project_leader: { $in: sameBranchUserWithoutConnections },
         is_deleted: false,
+        is_completed: false
       })
         .sort({ createdAt: -1 })
         .skip((resultsPerPage * page - resultsPerPage) / 3)
@@ -528,6 +562,7 @@ module.exports = {
       data = await Project.find({
         project_leader: { $eq: user._id },
         is_deleted: false,
+        is_completed: false
       })
         .sort({ createdAt: -1 })
         .skip((resultsPerPage * page - resultsPerPage) / 3)
@@ -672,6 +707,65 @@ module.exports = {
     } catch (e) {
       console.error(e);
       return res.status(500).end();
+    }
+  },
+  getMessages: async (req, res) => {
+    try {
+      const { pid } = req.body;
+      if (pid === "" || pid === undefined) {
+        res.status(400);
+        return res.json("Bad Request");
+      } else {
+        const currentRoom = await Room.findOne({
+          project_id: pid,
+        }).lean(true);
+        if (currentRoom.messages.length === 0) {
+          res.status(200);
+          return res.json([]);
+        } else {
+          res.status(200);
+          return res.json({ msgs: currentRoom.messages });
+        }
+      }
+    } catch (error) {
+      console.log("Error: ", error);
+      return res.status(400).json("Error getting messages");
+    }
+  },
+  getAllChatMessages: async (req, res) => {
+    try {
+      const user = await sessionUser(req, res);
+      if (!user) {
+        res.status(400);
+        return res.json("Unauthorized");
+      } else {
+
+        const projects = await project.find({
+          $or: [
+            { project_leader: { $eq: user._id } },
+            { project_members: { $elemMatch: { $eq: user._id } } },
+          ],
+          is_deleted: false,
+        })
+          // .sort({ createdAt: -1 })
+          .lean(true);
+
+        let rooms = [];
+        var allMessages = {};
+
+        for (let i = 0; i < projects.length; i++) {
+          const roomData = await Room.findOne({ project_id: projects[i]._id }).lean(true);
+          rooms.push(roomData);
+        }
+
+        for (let i = 0; i < rooms.length; i++) {
+          allMessages[rooms[i].project_id] = rooms[i].messages;
+        }
+        res.json(allMessages);
+      }
+    } catch (error) {
+      console.log("Error: ", error);
+      return res.status(400).json("Error getting messages");
     }
   },
 };

@@ -41,7 +41,13 @@ const addOrUpdatePost = async (req, res) => {
       });
       post
         .save({ timestamps: true })
-        .then((data) => res.json(data))
+        .then(async (data) => {
+          const plead = await UserProfile.findById(post.owner_id).lean(true);
+          res.status(201);
+          const dataObj = data.toObject();
+          return res.json({ ...plead, ...dataObj });
+        }
+        )
         .catch((e) => {
           console.error(e);
           return res.status(500).json({ message: "Something went wrong" });
@@ -194,13 +200,13 @@ const voteThePost = async (req, res) => {
           let notificationObject =
             postData.owner_id.toString() != user._id.toString()
               ? new Notification({
-                  thumbnail_pic:
-                    user.thumbnail_pic == "" ? "" : user.thumbnail_pic,
-                  message: `${user.fname} ${user.lname} upvoted your post`,
-                  is_unread: true,
-                  url: `/posts/${pid}`,
-                  receiver: postData.owner_id,
-                })
+                thumbnail_pic:
+                  user.thumbnail_pic == "" ? "" : user.thumbnail_pic,
+                message: `${user.fname} ${user.lname} upvoted your post`,
+                is_unread: true,
+                url: `/posts/${pid}`,
+                receiver: postData.owner_id,
+              })
               : undefined;
 
           if (postData.owner_id.toString() != user._id.toString())

@@ -21,7 +21,9 @@ const { search } = require("../../controller/api/search");
 const {
   verifyForgotPasswordCode,
 } = require("../../controller/api/forgotPassword");
-
+const viewMyProfile = require("../../controller/api/viewMyProfile");
+const UserProfile = require("../../model/user_profile");
+const getUser = require("../../controller/api/utils/get/get-user");
 /**
  *
  *  All routes for lightbox api
@@ -37,8 +39,11 @@ router.post("/verify_forgotPasswordCode", verifyForgotPasswordCode);
 router.post("/login", login);
 
 // to authenticate user
-router.get("/authenticate", authentication, (req, res) =>
-  res.json({ message: "authenticated" })
+router.get("/authenticate", authentication, async (req, res) => {
+  let u = await getUser(req);
+  const userProfile = await UserProfile.findById(u._id);
+  return res.json({ isProfileCompleted: userProfile ? true : false, message: "authenticated" });
+}
 );
 router.get("/logout", authentication, logout);
 
@@ -55,6 +60,8 @@ router.post("/post", authentication, post.addOrUpdatePost);
 
 // get user's all post
 router.get("/get_all_my_posts", authentication, post.getMyAllPost);
+
+router.get("/view_my_profile", authentication, viewMyProfile);
 
 // get single post
 router.get("/getpost", authentication, post.getSinglePost);
@@ -85,6 +92,8 @@ router.get("/get_all_my_projects", authentication, project.fetchAllMyProject);
 router.post("/join_project", authentication, project.requestToJoin);
 // to delete project
 router.post("/delete_project", authentication, project.deleteProject);
+// to complete project
+router.post("/complete_project", authentication, project.completeProject);
 // to withdraw request made
 router.post(
   "/cancel_project_request",
@@ -96,6 +105,8 @@ router.get("/project_requests", authentication, project.projectRequests);
 
 //to fetch project details
 router.get("/getproject", authentication, project.getProjectDetail);
+
+router.post("/get_messages", authentication, project.getMessages);
 
 //to comment on project
 router.post("/project_comment", authentication, project.comment);
@@ -150,6 +161,8 @@ router.get(
   authentication,
   notification.fetchNotification
 );
+
+router.get("/get_all_chat_messages", authentication, project.getAllChatMessages);
 
 // to fetch notifications
 router.post("/mark_all_as_read", authentication, notification.markAllAsRead);

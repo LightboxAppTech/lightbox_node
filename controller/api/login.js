@@ -45,7 +45,7 @@ module.exports = async (req, res) => {
     res.cookie("access-token", token, {
       maxAge: sevenDays,
       httpOnly: true,
-      secure: false,
+      secure: true,
       path: "/",
       sameSite: "none",
     });

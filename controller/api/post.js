@@ -45,7 +45,7 @@ const addOrUpdatePost = async (req, res) => {
           const plead = await UserProfile.findById(post.owner_id).lean(true);
           res.status(201);
           const dataObj = data.toObject();
-          return res.json({ ...plead, ...dataObj });
+          return res.json({ ...plead, ...dataObj, is_post: true });
         }
         )
         .catch((e) => {
@@ -91,6 +91,7 @@ const addOrUpdatePost = async (req, res) => {
           ...updatedPost,
           ...plead,
           _id: updatedPost._id,
+          is_post: true
         });
       }
       return res.status(500).json({ message: "Error updating Post" });
@@ -164,7 +165,7 @@ const comment = async (req, res) => {
         if (err) {
           throw err;
         }
-        return res.json({ message: "comment made", _id: commentObject._id });
+        return res.json({ message: "comment made", _id: commentObject._id, is_post: true });
       }
     );
   } catch (err) {
@@ -271,6 +272,7 @@ const getPostDetail = async (req, res) => {
           lname: user.lname,
           semester: user.semester,
           title: user.title,
+          is_post: true
         };
         data.thumbnail_pic = user.thumbnail_pic == "" ? "" : user.thumbnail_pic;
         if (data.is_deleted !== undefined) return res.json(data);
@@ -307,6 +309,7 @@ const getMyAllPost = async (req, res) => {
         lname: user.lname,
         semester: user.semester,
         title: user.title,
+        is_post: true,
         ...myPosts[i],
       };
       if (user.thumbnail_pic == "") myPosts[i].thumbnail_pic = "";

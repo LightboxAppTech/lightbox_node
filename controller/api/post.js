@@ -61,8 +61,8 @@ const addOrUpdatePost = async (req, res) => {
       if (p.owner_id.toString() != user._id.toString())
         return res.status(403).end();
 
-      const updatedUrls = await upload(req.body.images);
-      req.body.post_image = updatedUrls;
+      // const updatedUrls = await upload(req.body.images);
+      // req.body.post_image = updatedUrls;
 
       var updatedPost = await Post.findOneAndUpdate(
         {
@@ -76,7 +76,7 @@ const addOrUpdatePost = async (req, res) => {
           $set: {
             description: req.body.description,
             // owner_id: user._id,
-            post_image: req.body.post_image,
+            // post_image: req.body.post_image,
             tags: req.body.tags,
           },
         },

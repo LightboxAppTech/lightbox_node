@@ -6,7 +6,7 @@ module.exports = Joi.object({
   project_domain: Joi.array().items(Joi.string()).required().max(10).max(500),
   project_description: Joi.string().min(10).required(),
   project_requirement: Joi.array().items(Joi.string()).required().max(10),
-  requirement_description: Joi.string().required().min(10).max(500),
+  requirement_description: Joi.string().required().min(10),
   project_members: Joi.array().items(Joi.string()).default([]),
   project_leader: Joi.string(),
   project_requests: Joi.array().items(Joi.string()).default([]),

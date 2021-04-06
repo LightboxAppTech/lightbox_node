@@ -24,7 +24,7 @@ const verifyForgotPasswordCode = async (req, res) => {
 
     let savedUser = await User.findOne({ email: email });
 
-    if (savedUser === null) {
+    if (!savedUser) {
       console.log("User not Exists ");
       return res.status(400).json({ message: "Bad request" });
     }

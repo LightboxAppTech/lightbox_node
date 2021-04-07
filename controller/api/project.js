@@ -289,6 +289,7 @@ module.exports = {
 
           let notificationObject = new Notification({
             message: `You're now part of the Project: ${project.project_title}`,
+            thumbnail_pic: user.thumbnail_pic,
             is_unread: true,
             url: `/projects/${pid}`,
             receiver: requester,

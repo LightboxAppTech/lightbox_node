@@ -319,9 +319,9 @@ module.exports = {
                 requirement_description: project.requirement_description,
                 project_members: project.project_members,
                 project_requests: project.project_requests,
-                is_post: false,
                 is_completed: project.is_completed,
                 is_deleted: project.is_deleted
+                is_post: false,
               },
             });
           }

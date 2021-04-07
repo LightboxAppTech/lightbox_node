@@ -187,7 +187,6 @@ const welcomeEmailBody = (code) => {
                   line-height: 25px;
                 "
               >
-                <!-- <p style="margin: 0;">Cheers,<br />BBB Team</p> -->
                 <br />
                 Thanks and Regards, <br />
                 <br />
@@ -195,14 +194,14 @@ const welcomeEmailBody = (code) => {
                 <div style="content: ''; display: table; clear: both;">
                   <div style="float: left;">
                     <img
-                      src="https://lightbox-demo.netlify.app/logo.png"
+                      src="https://www.lightboxapp.tech/logo.png"
                       alt="Lightbox"
                       style="width: 50px;"
                     />
                   </div>
                   <div style="float: left; text-align: center;">
                     <a
-                      href="https://lightbox-demo.netlify.app/"
+                      href="https://www.lightboxapp.tech"
                       style="
                         font-weight: bold;
                         color: #006ba6;
@@ -211,7 +210,7 @@ const welcomeEmailBody = (code) => {
                       >The Lightbox Team </a
                     ><br />
                     <a
-                      href="https://lightbox-demo.netlify.app/policy"
+                      href="https://www.lightboxapp.tech/policy
                       style="color: #006ba6; text-decoration: none;"
                       >Privacy Policy</a
                     >
@@ -427,14 +426,14 @@ const forgotPasswordEmailBody = (code) => {
               <div style="content: ''; display: table; clear: both;">
                 <div style="float: left;">
                   <img
-                    src="https://lightbox-demo.netlify.app/logo.png"
+                    src="https://www.lightboxapp.tech/logo.png"
                     alt="Lightbox"
                     style="width: 50px;"
                   />
                 </div>
                 <div style="float: left; text-align: center;">
                   <a
-                    href="https://lightbox-demo.netlify.app/"
+                    href="https://www.lightboxapp.tech"
                     style="
                       font-weight: bold;
                       color: #006ba6;
@@ -443,7 +442,7 @@ const forgotPasswordEmailBody = (code) => {
                     >The Lightbox Team </a
                   ><br />
                   <a
-                    href="https://lightbox-demo.netlify.app/policy"
+                    href="https://www.lightboxapp.tech/policy"
                     style="color: #006ba6; text-decoration: none;"
                     >Privacy Policy</a
                   >

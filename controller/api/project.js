@@ -302,9 +302,26 @@ module.exports = {
             io.to(targetSocket).emit("projectRequestAcceptedNotification", {
               notificationObject,
               data: {
+                comments: project.comments,
+                createdAt: project.createdAt,
+                updatedAt: project.updatedAt,
                 fname: user.fname,
                 lname: user.lname,
+                _id: project._id,
+                semester: user.semester,
+                teamExists: project.teamExists,
+                thumbnail_pic: user.thumbnail_pic,
                 project_title: project.project_title,
+                project_leader: project.project_leader,
+                project_domain: project.project_domain,
+                project_requirement: project.project_requirement,
+                project_description: project.project_description,
+                requirement_description: project.requirement_description,
+                project_members: project.project_members,
+                project_requests: project.project_requests,
+                is_post: false,
+                is_completed: project.is_completed,
+                is_deleted: project.is_deleted
               },
             });
           }
@@ -510,7 +527,7 @@ module.exports = {
     try {
       let projectData = [];
       let page = req.query.page;
-      let resultsPerPage = 6;
+      let resultsPerPage = 8;
 
       const user = await sessionUser(req, res);
       const connectionList = user.connections;
@@ -530,6 +547,17 @@ module.exports = {
       //   sameBranchUserWithoutConnections
       // );
 
+      const crossBranchUserWithoutConnections = await UserProfile.find(
+        {
+          $and: [
+            { _id: { $nin: connectionList } },
+            { _id: { $ne: user._id } },
+            { branch: { $ne: user.branch } },
+          ],
+        },
+        { _id: 1 }
+      );
+
       let data = await Project.find({
         project_leader: { $in: connectionList },
         is_deleted: false,
@@ -537,8 +565,8 @@ module.exports = {
       })
         .lean(true)
         .sort({ createdAt: -1 })
-        .skip((resultsPerPage * page - resultsPerPage) / 3)
-        .limit(resultsPerPage / 3)
+        .skip((resultsPerPage * page - resultsPerPage) / 4)
+        .limit(resultsPerPage / 4)
         .lean(true);
 
       // console.log("projects of connections : ", data);
@@ -551,8 +579,8 @@ module.exports = {
         is_completed: false
       })
         .sort({ createdAt: -1 })
-        .skip((resultsPerPage * page - resultsPerPage) / 3)
-        .limit(resultsPerPage / 3)
+        .skip((resultsPerPage * page - resultsPerPage) / 4)
+        .limit(resultsPerPage / 4)
         .lean(true);
 
       // console.log("projects of same branch without connection : ", data);
@@ -565,13 +593,26 @@ module.exports = {
         is_completed: false
       })
         .sort({ createdAt: -1 })
-        .skip((resultsPerPage * page - resultsPerPage) / 3)
-        .limit(resultsPerPage / 3)
+        .skip((resultsPerPage * page - resultsPerPage) / 4)
+        .limit(resultsPerPage / 4)
         .lean(true);
 
-      // console.log("users's projects: ", data);
+      data.forEach((project) => projectData.push(project));
+
+      data = await Project.find({
+        project_leader: { $in: crossBranchUserWithoutConnections },
+        is_deleted: false,
+        is_completed: false
+      })
+        .sort({ createdAt: -1 })
+        .skip((resultsPerPage * page - resultsPerPage) / 4)
+        .limit(resultsPerPage / 4)
+        .lean(true);
+
+      // console.log("projects of same branch without connection : ", data);
 
       data.forEach((project) => projectData.push(project));
+
 
       if (projectData.length < 1) {
         return res.json(projectData);

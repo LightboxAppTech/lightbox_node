@@ -320,7 +320,7 @@ module.exports = {
                 project_members: project.project_members,
                 project_requests: project.project_requests,
                 is_completed: project.is_completed,
-                is_deleted: project.is_deleted
+                is_deleted: project.is_deleted,
                 is_post: false,
               },
             });

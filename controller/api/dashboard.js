@@ -7,7 +7,8 @@ const User = require("../../model/user_profile");
 async function dashboard(req, res) {
   try {
     let page = req.query.page;
-    let resultsPerPage = 9;
+    let resultsPerPage = 8;
+    let totalPosts = 0;
     let homeData = [];
     let projectData = [];
     const user = await sessionUser(req, res);
@@ -22,6 +23,16 @@ async function dashboard(req, res) {
       },
       { _id: 1 }
     );
+    const crossBranchUserWithoutConnections = await User.find(
+      {
+        $and: [
+          { _id: { $nin: connectionList } },
+          { _id: { $ne: user._id } },
+          { branch: { $ne: user.branch } },
+        ],
+      },
+      { _id: 1 }
+    );
 
     let data = await Post.find({
       owner_id: { $in: connectionList },
@@ -29,60 +40,80 @@ async function dashboard(req, res) {
     })
       .lean(true)
       .sort({ createdAt: -1 })
-      .skip((resultsPerPage * page - resultsPerPage) / 3)
-      .limit(resultsPerPage / 3);
+      .skip((resultsPerPage * page - resultsPerPage) / 4)
+      .limit(resultsPerPage / 4);
 
     data.forEach((post) => homeData.push(post));
+
+    totalPosts = totalPosts + data.length;
 
     data = await Post.find({
       owner_id: { $in: sameBranchUserWithoutConnections },
       is_deleted: false,
     })
       .sort({ createdAt: -1 })
-      .skip((resultsPerPage * page - resultsPerPage) / 3)
-      .limit(resultsPerPage /3)
+      .skip((resultsPerPage * page - resultsPerPage) / 4)
+      .limit(resultsPerPage / 4)
       .lean(true);
     data.forEach((post) => homeData.push(post));
+
+    totalPosts = totalPosts + data.length;
 
     data = await Post.find({ owner_id: { $eq: user._id }, is_deleted: false })
       .sort({ createdAt: -1 })
-      .skip((resultsPerPage * page - resultsPerPage) / 3)
-      .limit(resultsPerPage / 3)
+      .skip((resultsPerPage * page - resultsPerPage) / 4)
+      .limit(resultsPerPage / 4)
       .lean(true);
     data.forEach((post) => homeData.push(post));
 
-  // data = await Project.find({
-  //     project_leader: { $in: connectionList },
-  //     is_deleted: false,
-  //     is_completed: false
-  //   })
-  //     .lean(true)
-  //     .sort({ createdAt: -1 })
-  //     .skip((resultsPerPage * page - resultsPerPage) / 6)
-  //     .limit(resultsPerPage / 6);
-  //   data.forEach((project) => projectData.push(project));
+    totalPosts = totalPosts + data.length;
 
-  //   data = await Project.find({
-  //     project_leader: { $in: sameBranchUserWithoutConnections },
-  //     is_deleted: false,
-  //     is_completed: false
-  //   })
-  //     .sort({ createdAt: -1 })
-  //     .skip((resultsPerPage * page - resultsPerPage) / 6)
-  //     .limit(resultsPerPage / 6)
-  //     .lean(true);
-  //   data.forEach((project) => projectData.push(project));
+    var remainingPosts = 0;
+    { (totalPosts < 6) ? (remainingPosts = 6 - totalPosts) : (remainingPosts = 0); }
+    const paginationNumber = (remainingPost !== 0) ? 4 : 2;
 
-  //   data = await Project.find({
-  //     project_leader: { $eq: user._id },
-  //     is_deleted: false,
-  //     is_completed: false
-  //   })
-  //     .sort({ createdAt: -1 })
-  //     .skip((resultsPerPage * page - resultsPerPage) / 6)
-  //     .limit(resultsPerPage / 6)
-  //     .lean(true);
-  //   data.forEach((project) => projectData.push(project));
+    data = await Post.find({
+      owner_id: { $in: crossBranchUserWithoutConnections },
+      is_deleted: false,
+    })
+      .sort({ createdAt: -1 })
+      .skip((resultsPerPage * page - resultsPerPage) / paginationNumber)
+      .limit(resultsPerPage / paginationNumber)
+      .lean(true);
+    data.forEach((post) => homeData.push(post));
+
+    // data = await Project.find({
+    //     project_leader: { $in: connectionList },
+    //     is_deleted: false,
+    //     is_completed: false
+    //   })
+    //     .lean(true)
+    //     .sort({ createdAt: -1 })
+    //     .skip((resultsPerPage * page - resultsPerPage) / 6)
+    //     .limit(resultsPerPage / 6);
+    //   data.forEach((project) => projectData.push(project));
+
+    //   data = await Project.find({
+    //     project_leader: { $in: sameBranchUserWithoutConnections },
+    //     is_deleted: false,
+    //     is_completed: false
+    //   })
+    //     .sort({ createdAt: -1 })
+    //     .skip((resultsPerPage * page - resultsPerPage) / 6)
+    //     .limit(resultsPerPage / 6)
+    //     .lean(true);
+    //   data.forEach((project) => projectData.push(project));
+
+    //   data = await Project.find({
+    //     project_leader: { $eq: user._id },
+    //     is_deleted: false,
+    //     is_completed: false
+    //   })
+    //     .sort({ createdAt: -1 })
+    //     .skip((resultsPerPage * page - resultsPerPage) / 6)
+    //     .limit(resultsPerPage / 6)
+    //     .lean(true);
+    //   data.forEach((project) => projectData.push(project));
 
 
     if (homeData.length < 1) {
@@ -122,7 +153,7 @@ async function dashboard(req, res) {
     //   if (userData.thumbnail_pic == undefined) projectData[i].thumbnail_pic = "";
     //   else projectData[i].thumbnail_pic = userData.thumbnail_pic;
     // }
-    
+
     // return res.json([...homeData, ...projectData]);
 
   } catch (e) {

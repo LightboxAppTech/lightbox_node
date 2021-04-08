@@ -30,7 +30,7 @@ const suggestion = async (req, res) => {
         {
           uid: { $ne: user._id },
         },
-        { branch: { $eq: userProfile.branch } },
+        // { branch: { $eq: userProfile.branch } },
       ],
     });
     data.forEach((profile) => {

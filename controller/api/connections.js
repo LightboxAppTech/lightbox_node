@@ -10,7 +10,7 @@ const suggestion = async (req, res) => {
     const suggestedConnections = [];
     const user = await sessionUser(req, res);
     const userProfile = await UserProfile.findById(user._id);
-    let data = await UserProfile.find({
+    let allData = await UserProfile.find({
       $and: [
         {
           uid: {
@@ -33,6 +33,16 @@ const suggestion = async (req, res) => {
         // { branch: { $eq: userProfile.branch } },
       ],
     });
+
+    let flags = {};
+    const data = allData.filter(function (data) {
+      if (flags[data._id]) {
+        return false;
+      }
+      flags[data._id] = true;
+      return true;
+    });
+
     data.forEach((profile) => {
       let {
         thumbnail_pic,

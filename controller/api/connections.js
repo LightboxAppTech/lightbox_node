@@ -10,7 +10,7 @@ const suggestion = async (req, res) => {
     const suggestedConnections = [];
     const user = await sessionUser(req, res);
     const userProfile = await UserProfile.findById(user._id);
-    let allData = await UserProfile.find({
+    let data = await UserProfile.find({
       $and: [
         {
           uid: {
@@ -35,7 +35,7 @@ const suggestion = async (req, res) => {
     });
 
     let flags = {};
-    let data = allData.filter(function (d) {
+    let uniqueData = data.filter(function (d) {
       if (flags[d.uid]) {
         return false;
       }
@@ -43,7 +43,7 @@ const suggestion = async (req, res) => {
       return true;
     });
 
-    data.forEach((profile) => {
+    uniqueData.forEach((profile) => {
       let {
         thumbnail_pic,
         uid,
@@ -85,6 +85,7 @@ const suggestion = async (req, res) => {
         { skillset: { $in: userProfile.skillset } },
       ],
     });
+
     data.forEach((profile) => {
       let {
         thumbnail_pic,
@@ -105,7 +106,15 @@ const suggestion = async (req, res) => {
         lname,
       });
     });
-    res.json(suggestedConnections);
+    flags = {};
+    uniqueData = suggestedConnections.filter(function (d) {
+      if (flags[d.uid]) {
+        return false;
+      }
+      flags[d.uid] = true;
+      return true;
+    });
+    res.json(uniqueData);
   } catch (e) {
     console.error(e);
     res.status(500).json({ message: "Something went wrong" });

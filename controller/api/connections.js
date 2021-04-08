@@ -35,7 +35,7 @@ const suggestion = async (req, res) => {
     });
 
     let flags = {};
-    const data = allData.filter(function (data) {
+    let data = allData.filter(function (data) {
       if (flags[data._id]) {
         return false;
       }

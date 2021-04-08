@@ -35,11 +35,11 @@ const suggestion = async (req, res) => {
     });
 
     let flags = {};
-    let data = allData.filter(function (data) {
-      if (flags[data._id]) {
+    let data = allData.filter(function (d) {
+      if (flags[d.uid]) {
         return false;
       }
-      flags[data._id] = true;
+      flags[d.uid] = true;
       return true;
     });
 

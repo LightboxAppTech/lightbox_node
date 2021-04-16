@@ -70,7 +70,7 @@ async function dashboard(req, res) {
 
     var remainingPosts = 0;
     { (totalPosts < 6) ? (remainingPosts = 6 - totalPosts) : (remainingPosts = 0); }
-    const paginationNumber = (remainingPosts !== 0) ? 4 : 2;
+    const paginationNumber = (remainingPosts !== 0) ? 2 : 4;
 
     data = await Post.find({
       owner_id: { $in: crossBranchUserWithoutConnections },

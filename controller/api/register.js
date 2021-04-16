@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
 
     if (userExist !== null && userExist.isVerified === true) {
       return res
-        .status(400)
+        .status(401)
         .json({ message: "user already exists, please create new account" });
     }
 

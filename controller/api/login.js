@@ -42,13 +42,14 @@ module.exports = async (req, res) => {
 
     const userJson = { _id, email, isProfileCompleted, createdAt, updatedAt };
 
-    res.cookie("access-token", token, {
-      maxAge: sevenDays,
-      httpOnly: true,
-      secure: true,
-      path: "/",
-      sameSite: "none",
-    });
+    // res.cookie("access-token", token, {
+    //   maxAge: sevenDays,
+    //   httpOnly: true,
+    //   secure: true,
+    //   path: "/",
+    //   sameSite: "none",
+    // });
+    userJson.token = token;
     res.json(userJson);
   } catch (err) {
     console.error(err);

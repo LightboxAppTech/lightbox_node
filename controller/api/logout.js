@@ -1,5 +1,7 @@
 module.exports = (req, res) => {
-  let token = req.cookies["access-token"];
+  const token = req.headers.authorization.substring(7);
+
+  // let token = req.cookies["access-token"];
   res.cookie("access-token", token, {
     maxAge: -10,
     httpOnly: true,

@@ -1,4 +1,4 @@
-const { Notification } = require("../model/notification");
+const { Notification } = require('../model/notification')
 
 module.exports = (uid, notification) => {
   return new Promise((resolve, reject) => {
@@ -11,11 +11,11 @@ module.exports = (uid, notification) => {
         { upsert: true }
       )
         .then((data) => {
-          resolve(data);
+          resolve(data)
         })
-        .catch((e) => reject(e));
+        .catch((e) => reject(e))
     } catch (e) {
-      reject(e);
+      reject(e)
     }
-  });
-};
+  })
+}

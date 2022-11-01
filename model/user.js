@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose')
 
 // const ValidationCode = new mongoose.Schema(
 //   {
@@ -29,17 +29,17 @@ const userSchema = new mongoose.Schema(
       required: false,
     },
     emailVerification: {
-      code: { type: mongoose.Schema.Types.Number, default: "" },
-      validUpTo: { type: mongoose.Schema.Types.Number, default: "" },
+      code: { type: mongoose.Schema.Types.Number, default: '' },
+      validUpTo: { type: mongoose.Schema.Types.Number, default: '' },
       required: false,
     },
     forgotPasswordVerification: {
-      code: { type: mongoose.Schema.Types.Number, default: "" },
-      validUpTo: { type: mongoose.Schema.Types.Number, default: "" },
+      code: { type: mongoose.Schema.Types.Number, default: '' },
+      validUpTo: { type: mongoose.Schema.Types.Number, default: '' },
       required: false,
     },
   },
   { timestamps: true }
-);
+)
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema)

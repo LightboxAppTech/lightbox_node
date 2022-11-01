@@ -1,8 +1,8 @@
-const SessionUser = require("./utils/get/get-user");
-const createThumbnail = require("../../utility/thumbnail");
-const { upload } = require("../../utility/awsuploads");
-const UserProfile = require("../../model/user_profile");
-const profileValidation = require("./validation/profile");
+const SessionUser = require('./utils/get/get-user')
+const createThumbnail = require('../../utility/thumbnail')
+const { upload } = require('../../utility/awsuploads')
+const UserProfile = require('../../model/user_profile')
+const profileValidation = require('./validation/profile')
 
 module.exports = async (req, res) => {
   try {
@@ -13,15 +13,15 @@ module.exports = async (req, res) => {
       branch: req.body.branch,
       skillset: req.body.skillset,
       title: req.body.title,
-    };
+    }
 
-    const { error } = profileValidation.validate(incomingData);
+    const { error } = profileValidation.validate(incomingData)
 
     if (error)
-      return res.status(400).json({ message: error.details[0].message });
+      return res.status(400).json({ message: error.details[0].message })
 
-    const user = await SessionUser(req);
-    const userData = await UserProfile.findById(user._id);
+    const user = await SessionUser(req)
+    const userData = await UserProfile.findById(user._id)
 
     let newUser = new UserProfile({
       fname: `${req.body.fname}`,
@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
       groups: userData ? userData.groups : [],
       requestsMade: userData ? userData.requestsMade : [],
       requestsReceived: userData ? userData.requestsReceived : [],
-    });
+    })
 
     let tmpUser = {
       thumbnail_pic: newUser.thumbnail_pic,
@@ -56,14 +56,14 @@ module.exports = async (req, res) => {
       semester: newUser.semester,
       title: newUser.title,
       uid: newUser.uid,
-    };
+    }
 
     if (req.body.dp_changed === true) {
-      let image = await createThumbnail(req.body.profile_pic[0]);
-      let images = [];
-      images.push(image);
-      let profilePicUrl = await upload(images, true, user._id);
-      tmpUser.thumbnail_pic = profilePicUrl[0];
+      let image = await createThumbnail(req.body.profile_pic[0])
+      let images = []
+      images.push(image)
+      let profilePicUrl = await upload(images, true, user._id)
+      tmpUser.thumbnail_pic = profilePicUrl[0]
     }
 
     UserProfile.findOneAndUpdate(
@@ -73,7 +73,7 @@ module.exports = async (req, res) => {
       },
       { upsert: true, new: true, timestamps: true, useFindAndModify: false },
       (error, userProfile) => {
-        if (error) return res.status(500).json({ message: error });
+        if (error) return res.status(500).json({ message: error })
 
         const {
           uid,
@@ -93,7 +93,7 @@ module.exports = async (req, res) => {
           requestsReceived,
           createdAt,
           updatedAt,
-        } = userProfile;
+        } = userProfile
         const userProfileJson = {
           uid,
           fname,
@@ -112,12 +112,12 @@ module.exports = async (req, res) => {
           requestsReceived,
           createdAt,
           updatedAt,
-        };
-        res.json(userProfileJson);
+        }
+        res.json(userProfileJson)
       }
-    );
+    )
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: "Something went wrong" });
+    console.error(e)
+    res.status(500).json({ message: 'Something went wrong' })
   }
-};
+}

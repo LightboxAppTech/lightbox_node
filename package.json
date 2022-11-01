@@ -9,9 +9,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Nikhil1999/node-lightbox.git"
+    "url": "git+https://github.com/LightboxAppTech/lightbox_node.git"
   },
-  "author": "",
+  "author": "LightboxAppTech",
   "license": "ISC",
   "dependencies": {
     "@hapi/joi": "^17.1.1",

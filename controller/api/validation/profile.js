@@ -1,4 +1,4 @@
-const Joi = require("@hapi/joi");
+const Joi = require('@hapi/joi')
 
 module.exports = Joi.object({
   name: Joi.string()
@@ -11,4 +11,4 @@ module.exports = Joi.object({
   skillset: Joi.array().min(1).required().items(Joi.string()),
   title: Joi.string().min(1).max(75).required(),
   branch: Joi.string().required(),
-});
+})

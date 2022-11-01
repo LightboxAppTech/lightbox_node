@@ -1,4 +1,4 @@
-const Joi = require("@hapi/joi");
+const Joi = require('@hapi/joi')
 
 module.exports = Joi.object({
   comment_text: Joi.string().max(500).min(1).required(),
@@ -6,4 +6,4 @@ module.exports = Joi.object({
   commentor_pic: Joi.string(),
   comment_date: Joi.string(),
   commentor: Joi.string().required(),
-});
+})

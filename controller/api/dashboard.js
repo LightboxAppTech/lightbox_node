@@ -1,18 +1,18 @@
-const sessionUser = require("./utils/get/user");
-const Post = require("../../model/post");
-const Project = require("../../model/project");
-const UserProfile = require("../../model/user_profile");
-const User = require("../../model/user_profile");
+const sessionUser = require('./utils/get/user')
+const Post = require('../../model/post')
+const Project = require('../../model/project')
+const UserProfile = require('../../model/user_profile')
+const User = require('../../model/user_profile')
 
 async function dashboard(req, res) {
   try {
-    let page = req.query.page;
-    let resultsPerPage = 8;
-    let totalPosts = 0;
-    let homeData = [];
-    let projectData = [];
-    const user = await sessionUser(req, res);
-    const connectionList = user.connections;
+    let page = req.query.page
+    let resultsPerPage = 8
+    let totalPosts = 0
+    let homeData = []
+    let projectData = []
+    const user = await sessionUser(req, res)
+    const connectionList = user.connections
     const sameBranchUserWithoutConnections = await User.find(
       {
         $and: [
@@ -22,7 +22,7 @@ async function dashboard(req, res) {
         ],
       },
       { _id: 1 }
-    );
+    )
     const crossBranchUserWithoutConnections = await User.find(
       {
         $and: [
@@ -32,7 +32,7 @@ async function dashboard(req, res) {
         ],
       },
       { _id: 1 }
-    );
+    )
 
     let data = await Post.find({
       owner_id: { $in: connectionList },
@@ -41,11 +41,11 @@ async function dashboard(req, res) {
       .lean(true)
       .sort({ createdAt: -1 })
       .skip((resultsPerPage * page - resultsPerPage) / 4)
-      .limit(resultsPerPage / 4);
+      .limit(resultsPerPage / 4)
 
-    data.forEach((post) => homeData.push(post));
+    data.forEach((post) => homeData.push(post))
 
-    totalPosts = totalPosts + data.length;
+    totalPosts = totalPosts + data.length
 
     data = await Post.find({
       owner_id: { $in: sameBranchUserWithoutConnections },
@@ -54,23 +54,25 @@ async function dashboard(req, res) {
       .sort({ createdAt: -1 })
       .skip((resultsPerPage * page - resultsPerPage) / 4)
       .limit(resultsPerPage / 4)
-      .lean(true);
-    data.forEach((post) => homeData.push(post));
+      .lean(true)
+    data.forEach((post) => homeData.push(post))
 
-    totalPosts = totalPosts + data.length;
+    totalPosts = totalPosts + data.length
 
     data = await Post.find({ owner_id: { $eq: user._id }, is_deleted: false })
       .sort({ createdAt: -1 })
       .skip((resultsPerPage * page - resultsPerPage) / 4)
       .limit(resultsPerPage / 4)
-      .lean(true);
-    data.forEach((post) => homeData.push(post));
+      .lean(true)
+    data.forEach((post) => homeData.push(post))
 
-    totalPosts = totalPosts + data.length;
+    totalPosts = totalPosts + data.length
 
-    var remainingPosts = 0;
-    { (totalPosts < 6) ? (remainingPosts = 6 - totalPosts) : (remainingPosts = 0); }
-    const paginationNumber = (remainingPosts !== 0) ? 2 : 4;
+    var remainingPosts = 0
+    {
+      totalPosts < 6 ? (remainingPosts = 6 - totalPosts) : (remainingPosts = 0)
+    }
+    const paginationNumber = remainingPosts !== 0 ? 2 : 4
 
     data = await Post.find({
       owner_id: { $in: crossBranchUserWithoutConnections },
@@ -79,8 +81,8 @@ async function dashboard(req, res) {
       .sort({ createdAt: -1 })
       .skip((resultsPerPage * page - resultsPerPage) / paginationNumber)
       .limit(resultsPerPage / paginationNumber)
-      .lean(true);
-    data.forEach((post) => homeData.push(post));
+      .lean(true)
+    data.forEach((post) => homeData.push(post))
 
     // data = await Project.find({
     //     project_leader: { $in: connectionList },
@@ -115,15 +117,12 @@ async function dashboard(req, res) {
     //     .lean(true);
     //   data.forEach((project) => projectData.push(project));
 
-
     if (homeData.length < 1) {
-      return res.json(homeData);
+      return res.json(homeData)
     }
 
     for (let i = 0; i < homeData.length; i++) {
-      let userData = await UserProfile.findById(homeData[i].owner_id).lean(
-        true
-      );
+      let userData = await UserProfile.findById(homeData[i].owner_id).lean(true)
       homeData[i] = {
         fname: userData.fname,
         lname: userData.lname,
@@ -131,11 +130,11 @@ async function dashboard(req, res) {
         title: userData.title,
         is_post: true,
         ...homeData[i],
-      };
-      if (userData.thumbnail_pic == undefined) homeData[i].thumbnail_pic = "";
-      else homeData[i].thumbnail_pic = userData.thumbnail_pic;
+      }
+      if (userData.thumbnail_pic == undefined) homeData[i].thumbnail_pic = ''
+      else homeData[i].thumbnail_pic = userData.thumbnail_pic
 
-      if (i === homeData.length - 1) res.json(homeData);
+      if (i === homeData.length - 1) res.json(homeData)
     }
 
     // for (let i = 0; i < projectData.length; i++) {
@@ -155,11 +154,10 @@ async function dashboard(req, res) {
     // }
 
     // return res.json([...homeData, ...projectData]);
-
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: "Something Went Wrong" });
+    console.error(e)
+    res.status(500).json({ message: 'Something Went Wrong' })
   }
 }
 
-module.exports = { getDashboardData: dashboard };
+module.exports = { getDashboardData: dashboard }

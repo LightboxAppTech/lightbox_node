@@ -1,17 +1,17 @@
-const mongoose = require("mongoose");
-const types = mongoose.SchemaTypes;
+const mongoose = require('mongoose')
+const types = mongoose.SchemaTypes
 
 const project = new mongoose.Schema(
   {
     project_leader: {
       type: types.ObjectId,
       required: true,
-      ref: "users",
+      ref: 'users',
     },
     project_members: {
       type: [types.ObjectId],
       default: [],
-      ref: "users",
+      ref: 'users',
     },
     project_title: {
       type: types.String,
@@ -35,7 +35,7 @@ const project = new mongoose.Schema(
     },
     project_requests: {
       type: [types.ObjectId],
-      ref: "users",
+      ref: 'users',
       default: [],
     },
     requirement_description: {
@@ -61,6 +61,6 @@ const project = new mongoose.Schema(
     },
   },
   { timestamps: true }
-);
-project.index({ project_description: "text" });
-module.exports = mongoose.model("projects", project);
+)
+project.index({ project_description: 'text' })
+module.exports = mongoose.model('projects', project)

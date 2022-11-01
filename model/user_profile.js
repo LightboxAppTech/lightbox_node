@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose')
 
 const userProfileSchema = new mongoose.Schema(
   {
@@ -7,7 +7,7 @@ const userProfileSchema = new mongoose.Schema(
       type: mongoose.SchemaTypes.ObjectId,
       required: false,
     },
-    thumbnail_pic: { type: String, default: "" },
+    thumbnail_pic: { type: String, default: '' },
     branch: {
       type: mongoose.SchemaTypes.String,
       required: true,
@@ -84,6 +84,6 @@ const userProfileSchema = new mongoose.Schema(
     },
   },
   { timestamps: true }
-);
-userProfileSchema.index({ fname: "text" });
-module.exports = mongoose.model("UserProfile", userProfileSchema);
+)
+userProfileSchema.index({ fname: 'text' })
+module.exports = mongoose.model('UserProfile', userProfileSchema)

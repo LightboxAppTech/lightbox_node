@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const types = mongoose.Schema.Types;
+const mongoose = require('mongoose')
+const types = mongoose.Schema.Types
 
 // const commentBody = {
 //     comment_text: req.body.comment_text,
@@ -29,6 +29,6 @@ const comment = new mongoose.Schema({
   thumbnail_pic: {
     type: types.String,
   },
-});
+})
 
-module.exports = mongoose.model("comments", comment);
+module.exports = mongoose.model('comments', comment)

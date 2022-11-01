@@ -1,32 +1,30 @@
-const User = require("../../model/user");
-const sendMail = require("../../utility/email");
-const codeGenerator = require("../../utility/codegenerator");
-const { forgotPasswordEmailBody } = require("../../utility/emailBodies");
+const User = require('../../model/user')
+const sendMail = require('../../utility/email')
+const codeGenerator = require('../../utility/codegenerator')
+const { forgotPasswordEmailBody } = require('../../utility/emailBodies')
 
-const emailRegEx = RegExp(/^[a-zA-Z0-9._]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
+const emailRegEx = RegExp(/^[a-zA-Z0-9._]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)
 
 const veriyfyEmail = async (req, res) => {
   try {
     const emailId = req.body.email
       ? req.body.email.toString().trim()
-      : undefined;
+      : undefined
     // const emailId = req.query.email
     //   ? req.query.email.toString().trim()
     //   : undefined;
     if (
       emailId === undefined ||
-      emailId === "" ||
+      emailId === '' ||
       emailRegEx.test(emailId) === false
     ) {
-      return res.status(400).json({ message: "Bad Request" });
+      return res.status(400).json({ message: 'Bad Request' })
     }
 
-    const targetUser = await User.findOne({ email: emailId });
+    const targetUser = await User.findOne({ email: emailId })
 
     if (targetUser === null) {
-      return res
-        .status(400)
-        .json({ message: "No user found with this email!" });
+      return res.status(400).json({ message: 'No user found with this email!' })
     }
 
     /**
@@ -40,29 +38,27 @@ const veriyfyEmail = async (req, res) => {
      *                      else (ask user for correct verification code)
      *
      */
-    const code = codeGenerator.generateCode();
+    const code = codeGenerator.generateCode()
 
     await User.updateOne(
       { _id: targetUser._id },
       { $set: { forgotPasswordVerification: code } }
-    );
-
-
+    )
 
     const mailBody = {
-      subject: "Password Reset Request for your Lightbox Acccount",
-      html: forgotPasswordEmailBody(code.code)
-    };
+      subject: 'Password Reset Request for your Lightbox Acccount',
+      html: forgotPasswordEmailBody(code.code),
+    }
 
-    await sendMail(mailBody, targetUser.email);
+    await sendMail(mailBody, targetUser.email)
 
     res.json({
-      message: "verification code sent in your mailbox",
-    });
+      message: 'verification code sent in your mailbox',
+    })
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: "Something Went Wrong" });
+    console.error(e)
+    res.status(500).json({ message: 'Something Went Wrong' })
   }
-};
+}
 
-module.exports = veriyfyEmail;
+module.exports = veriyfyEmail

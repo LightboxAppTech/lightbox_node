@@ -1,7 +1,7 @@
-const Joi = require("@hapi/joi");
+const Joi = require('@hapi/joi')
 
 module.exports = Joi.object({
-  _id: Joi.string().default(""),
+  _id: Joi.string().default(''),
   project_title: Joi.string().min(5).max(50).required(),
   project_domain: Joi.array().items(Joi.string()).required().max(10).max(500),
   project_description: Joi.string().min(10).required(),
@@ -13,4 +13,4 @@ module.exports = Joi.object({
   is_deleted: Joi.boolean().default(false),
   is_completed: Joi.boolean().default(false),
   teamExists: Joi.boolean().default(false),
-});
+})

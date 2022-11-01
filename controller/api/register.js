@@ -1,44 +1,44 @@
-const jwt = require("jsonwebtoken");
-const User = require("../../model/user");
-const UserProfile = require("../../model/user_profile");
-const bcrypt = require("bcryptjs");
-const loginValidation = require("./validation/login");
-const emailRegEx = RegExp(/^[a-zA-Z0-9._]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
-const sevenDays = 7 * 24 * 60 * 60 * 1000;
-const generator = require("../../utility/codegenerator");
-const sendMail = require("../../utility/email");
-const { welcomeEmailBody } = require("../../utility/emailBodies");
+const jwt = require('jsonwebtoken')
+const User = require('../../model/user')
+const UserProfile = require('../../model/user_profile')
+const bcrypt = require('bcryptjs')
+const loginValidation = require('./validation/login')
+const emailRegEx = RegExp(/^[a-zA-Z0-9._]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)
+const sevenDays = 7 * 24 * 60 * 60 * 1000
+const generator = require('../../utility/codegenerator')
+const sendMail = require('../../utility/email')
+const { welcomeEmailBody } = require('../../utility/emailBodies')
 
 module.exports = async (req, res) => {
   try {
     // let { email } = req.body;
     if (
-      req.body.email === "" ||
+      req.body.email === '' ||
       req.body.email === undefined ||
       emailRegEx.test(req.body.email) === false
     ) {
-      return res.status(400).json({ message: "Bad request" });
+      return res.status(400).json({ message: 'Bad request' })
     }
 
-    const { error } = loginValidation.validate(req.body);
+    const { error } = loginValidation.validate(req.body)
     if (error) {
-      return res.status(400).json({ message: error.details[0].message });
+      return res.status(400).json({ message: error.details[0].message })
     }
 
     const userExist = await User.findOne({
       email: req.body.email.trim(),
-    });
+    })
 
     if (userExist !== null && userExist.isVerified === true) {
       return res
         .status(401)
-        .json({ message: "user already exists, please create new account" });
+        .json({ message: 'user already exists, please create new account' })
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(req.body.password.trim(), salt);
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(req.body.password.trim(), salt)
 
-    let code = generator.generateCode();
+    let code = generator.generateCode()
 
     if (userExist !== null) {
       // user exists but account is not verified
@@ -48,26 +48,26 @@ module.exports = async (req, res) => {
           $set: { emailVerification: code, password: hashedPassword },
         },
         { upsert: false, timestamps: true, useFindAndModify: false }
-      );
+      )
     } else {
       // user is new user so store details in db
       const user = new User({
         email: req.body.email.trim(),
         password: hashedPassword,
         emailVerification: code,
-      });
-      await user.save();
+      })
+      await user.save()
     }
     let mailBody = {
       // text: `use verification code ${code.code} to activate your account \n if you've not requested verification you may safely ignore this email.`,
       html: welcomeEmailBody(code.code),
-      subject: "Email Verification for your Lightbox Acccount"
-    };
+      subject: 'Email Verification for your Lightbox Acccount',
+    }
 
-    await sendMail(mailBody, req.body.email);
+    await sendMail(mailBody, req.body.email)
     res.json({
-      message: "account verification code has been sent to your mailbox",
-    });
+      message: 'account verification code has been sent to your mailbox',
+    })
     /**
      * TODO:
      *      1.  we need to add some detail regarding password
@@ -101,6 +101,6 @@ module.exports = async (req, res) => {
     //   })
     //   .json(userJson);
   } catch (err) {
-    res.status(500).json({ message: err });
+    res.status(500).json({ message: err })
   }
-};
+}

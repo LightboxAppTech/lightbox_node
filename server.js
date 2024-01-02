@@ -6,7 +6,6 @@ const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose')
 const http = require('http')
 const helmet = require('helmet')
-const limiter = require('express-limiter')
 const { initSocket } = require('./utility/socket')
 const port = process.env.PORT || 3000
 

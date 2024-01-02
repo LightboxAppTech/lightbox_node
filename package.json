@@ -21,7 +21,6 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "express-limiter": "^1.6.1",
     "file-type": "^15.0.1",
     "googleapis": "^66.0.0",
     "helmet": "^4.2.0",

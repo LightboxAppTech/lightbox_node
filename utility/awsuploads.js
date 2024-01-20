@@ -1,7 +1,7 @@
 require('dotenv').config()
-const AWS = require('aws-sdk')
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3')
 const crypto = require('crypto')
-const s3 = new AWS.S3({ region: process.env.AWS_REGION })
+const s3 = new S3Client({ region: process.env.AWS_REGION })
 
 const getMetaData = (value) => {
   return {
@@ -41,7 +41,7 @@ const upload = (images, isProfilePicture = false, uid = '') => {
           ContentEncoding: encoding,
           Key: key,
         }
-        let data = await s3.upload(params).promise()
+        let data = await s3.send(new PutObjectCommand(params))
         imageUrls.push(data.Location)
         if (imageUrls.length === images.length) {
           resolve(imageUrls)

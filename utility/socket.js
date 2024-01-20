@@ -1,6 +1,6 @@
-const project = require('../model/project')
+const project = require('../models/project')
 const getUser = require('../controller/api/utils/get/getUid')
-const Room = require('../model/room')
+const Room = require('../models/room')
 
 const _socketConnection = new Map()
 const _refToId = new Map()

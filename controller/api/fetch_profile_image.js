@@ -1,4 +1,4 @@
-const UserProfile = require('../../model/user_profile')
+const UserProfile = require('../../models/userProfile')
 
 module.exports = async (req, res) => {
   const id = req.params.id

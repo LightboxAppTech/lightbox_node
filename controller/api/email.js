@@ -1,4 +1,4 @@
-const User = require('../../model/user')
+const User = require('../../models/user')
 const sendMail = require('../../utility/email')
 const codeGenerator = require('../../utility/codegenerator')
 const { forgotPasswordEmailBody } = require('../../utility/emailBodies')

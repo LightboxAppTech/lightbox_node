@@ -1,7 +1,7 @@
-const User = require('../../model/user_profile')
-const UserProfile = require('../../model/user_profile')
-const Project = require('../../model/project')
-const Post = require('../../model/post')
+const User = require('../../models/userProfile')
+const UserProfile = require('../../models/userProfile')
+const Project = require('../../models/project')
+const Post = require('../../models/post')
 const sw = require('stopword')
 const sessionUser = require('../api/utils/get/user')
 

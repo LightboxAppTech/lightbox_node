@@ -22,7 +22,7 @@ const {
   verifyForgotPasswordCode,
 } = require('../../controller/api/forgotPassword')
 const viewMyProfile = require('../../controller/api/viewMyProfile')
-const UserProfile = require('../../model/user_profile')
+const UserProfile = require('../../models/userProfile')
 const getUser = require('../../controller/api/utils/get/get-user')
 /**
  *

@@ -1,8 +1,8 @@
-const UserProfile = require('../../model/user_profile')
-const User = require('../../model/user')
+const UserProfile = require('../../models/userProfile')
+const User = require('../../models/user')
 const { getSocket } = require('../../utility/socket')
 const sessionUser = require('./utils/get/user')
-const { Notification } = require('../../model/notification')
+const { Notification } = require('../../models/notification')
 // const storeNotification = require("../../utility/notification");
 
 const suggestion = async (req, res) => {

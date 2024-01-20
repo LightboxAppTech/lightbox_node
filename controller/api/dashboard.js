@@ -1,8 +1,8 @@
 const sessionUser = require('./utils/get/user')
-const Post = require('../../model/post')
-const Project = require('../../model/project')
-const UserProfile = require('../../model/user_profile')
-const User = require('../../model/user_profile')
+const Post = require('../../models/post')
+const Project = require('../../models/project')
+const UserProfile = require('../../models/userProfile')
+const User = require('../../models/userProfile')
 
 async function dashboard(req, res) {
   try {

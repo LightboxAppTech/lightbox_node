@@ -1,6 +1,6 @@
 require('dotenv').config()
-const User = require('../../model/user')
-const UserProfile = require('../../model/user_profile')
+const User = require('../../models/user')
+const UserProfile = require('../../models/userProfile')
 const jwt = require('jsonwebtoken')
 
 const VERIFICATIOCODE = { code: null, validUpTo: null }

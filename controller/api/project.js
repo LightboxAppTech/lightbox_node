@@ -1,13 +1,13 @@
 const projectValidation = require('../../controller/api/validation/project')
 const sessionUser = require('../api/utils/get/user')
-const Project = require('../../model/project')
+const Project = require('../../models/project')
 const { getSocket } = require('../../utility/socket')
-const { Notification } = require('../../model/notification')
-const User = require('../../model/user')
-const UserProfile = require('../../model/user_profile')
-const project = require('../../model/project')
-const Room = require('./../../model/room')
-const Comment = require('../../model/comment')
+const { Notification } = require('../../models/notification')
+const User = require('../../models/user')
+const UserProfile = require('../../models/userProfile')
+const project = require('../../models/project')
+const Room = require('./../../models/room')
+const Comment = require('../../models/comment')
 // const storeNotification = require("../../utility/notification");
 
 module.exports = {

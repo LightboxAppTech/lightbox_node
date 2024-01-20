@@ -1,4 +1,4 @@
-const Joi = require('@hapi/joi')
+const Joi = require('joi')
 
 module.exports = Joi.object({
   email: Joi.string().min(6).max(100).email().required(),

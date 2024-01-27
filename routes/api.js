@@ -1,29 +1,29 @@
 const router = require('express').Router()
-const register = require('../../controller/api/register')
-const { getDashboardData } = require('../../controller/api/dashboard')
-const login = require('../../controller/api/login')
-const emailVerification = require('../../controller/api/email')
-const authentication = require('../../controller/api/authentication')
-const fetchProfile = require('../../controller/api/fetch_profile')
-const logout = require('../../controller/api/logout')
-const updateProfile = require('../../controller/api/update_profile')
-const post = require('../../controller/api/post')
-const project = require('../../controller/api/project')
-const connections = require('../../controller/api/connections')
-const notification = require('../../controller/api/notification')
-const acceptUser = require('../../controller/api/project').acceptUser
-const rejectUser = require('../../controller/api/project').rejectUser
+const register = require('../controller/api/register')
+const { getDashboardData } = require('../controller/api/dashboard')
+const login = require('../controller/api/login')
+const emailVerification = require('../controller/api/email')
+const authentication = require('../controller/api/authentication')
+const fetchProfile = require('../controller/api/fetch_profile')
+const logout = require('../controller/api/logout')
+const updateProfile = require('../controller/api/update_profile')
+const post = require('../controller/api/post')
+const project = require('../controller/api/project')
+const connections = require('../controller/api/connections')
+const notification = require('../controller/api/notification')
+const acceptUser = require('../controller/api/project').acceptUser
+const rejectUser = require('../controller/api/project').rejectUser
 const cancelProjectRequest =
-  require('../../controller/api/project').cancelProjectRequest
-const password = require('../../controller/api/password')
-const account = require('../../controller/api/account')
-const { search } = require('../../controller/api/search')
+  require('../controller/api/project').cancelProjectRequest
+const password = require('../controller/api/password')
+const account = require('../controller/api/account')
+const { search } = require('../controller/api/search')
 const {
   verifyForgotPasswordCode,
-} = require('../../controller/api/forgotPassword')
-const viewMyProfile = require('../../controller/api/viewMyProfile')
-const UserProfile = require('../../models/userProfile')
-const getUser = require('../../controller/api/utils/get/get-user')
+} = require('../controller/api/forgotPassword')
+const viewMyProfile = require('../controller/api/viewMyProfile')
+const UserProfile = require('../models/userProfile')
+const getUser = require('../controller/api/utils/get/get-user')
 /**
  *
  *  All routes for lightbox api

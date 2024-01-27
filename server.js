@@ -1,21 +1,22 @@
-const express = require('express')
+const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const dotenv = require('dotenv')
-const routes = require('./routes/routes')
-const cookieParser = require('cookie-parser')
-const mongoose = require('mongoose')
-const http = require('http')
-const helmet = require('helmet')
+const express = require('express')
 const { rateLimit } = require('express-rate-limit')
+const helmet = require('helmet')
+const http = require('http')
 const morgan = require('morgan')
-const logger = require('./utility/logger')
+
 const { initSocket } = require('./utility/socket')
-const port = process.env.PORT || 3000
+const databaseConnection = require('./utility/dbConnection')
+const logger = require('./utility/logger')
+const routes = require('./routes/routes')
+
+const port = process.env.APP_PORT
 
 const app = express()
 const server = http.createServer(app)
 const socketio = require('socket.io').listen(server)
-const databaseConnection = require('./utility/dbConnection')
 
 const requestLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,

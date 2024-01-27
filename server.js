@@ -7,6 +7,8 @@ const mongoose = require('mongoose')
 const http = require('http')
 const helmet = require('helmet')
 const { rateLimit } = require('express-rate-limit')
+const morgan = require('morgan')
+const logger = require('./utility/logger')
 const { initSocket } = require('./utility/socket')
 const port = process.env.PORT || 3000
 
@@ -22,12 +24,21 @@ const requestLimiter = rateLimit({
   legacyHeaders: false, // Disable the 'X-RateLimit-*' headers.
 })
 
+const morganMiddleware = morgan(
+  ':method :url | Code::status | Response::response-time ms',
+  {
+    stream: { write: (message) => logger.http(message) },
+    skip: process.env.NODE_ENV !== 'development',
+  }
+)
+
 dotenv.config()
 app.use(helmet())
 app.use(requestLimiter)
 app.use(cookieParser())
 app.use(express.json({ limit: '100MB' }))
 app.use(cors({ credentials: true, origin: true }))
+app.use(morganMiddleware)
 app.set('io', socketio)
 initSocket(socketio)
 
@@ -36,9 +47,9 @@ app.use('/', routes)
 const startServer = async () => {
   try {
     await databaseConnection()
-    server.listen(port, () => console.log('Server started on port ' + port))
+    server.listen(port, () => logger.info('Server started on port ' + port))
   } catch (error) {
-    console.error('Error connecting to db =>', error)
+    logger.error('Error connecting to database =>', error)
   }
 }
 

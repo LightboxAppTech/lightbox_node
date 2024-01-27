@@ -1,7 +1,7 @@
 const User = require('../../models/user')
-const sendMail = require('../../utility/email')
-const codeGenerator = require('../../utility/codegenerator')
-const { forgotPasswordEmailBody } = require('../../utility/emailBodies')
+const sendMail = require('../../helper/email')
+const codeGenerator = require('../../helper/codegenerator')
+const { forgotPasswordEmailBody } = require('../../helper/emailBodies')
 
 const emailRegEx = RegExp(/^[a-zA-Z0-9._]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)
 

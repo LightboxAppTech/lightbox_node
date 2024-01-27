@@ -5,9 +5,9 @@ const bcrypt = require('bcryptjs')
 const loginValidation = require('./validation/login')
 const emailRegEx = RegExp(/^[a-zA-Z0-9._]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)
 const sevenDays = 7 * 24 * 60 * 60 * 1000
-const generator = require('../../utility/codegenerator')
-const sendMail = require('../../utility/email')
-const { welcomeEmailBody } = require('../../utility/emailBodies')
+const generator = require('../../helper/codegenerator')
+const sendMail = require('../../helper/email')
+const { welcomeEmailBody } = require('../../helper/emailBodies')
 
 module.exports = async (req, res) => {
   try {

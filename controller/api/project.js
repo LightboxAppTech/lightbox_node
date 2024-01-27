@@ -1,7 +1,7 @@
 const projectValidation = require('../../controller/api/validation/project')
 const sessionUser = require('../api/utils/get/user')
 const Project = require('../../models/project')
-const { getSocket } = require('../../utility/socket')
+const { getSocket } = require('../../helper/socket')
 const { Notification } = require('../../models/notification')
 const User = require('../../models/user')
 const UserProfile = require('../../models/userProfile')

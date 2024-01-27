@@ -7,9 +7,9 @@ const helmet = require('helmet')
 const http = require('http')
 const morgan = require('morgan')
 
-const { initSocket } = require('./utility/socket')
-const databaseConnection = require('./utility/dbConnection')
-const logger = require('./utility/logger')
+const { initSocket } = require('./helper/socket')
+const databaseConnection = require('./helper/dbConnection')
+const logger = require('./helper/logger')
 const routes = require('./routes/routes')
 
 const port = process.env.APP_PORT

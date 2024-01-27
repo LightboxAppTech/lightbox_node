@@ -1,9 +1,9 @@
 const Post = require('../../models/post')
 const UserProfile = require('../../models/userProfile')
-const { getSocket } = require('../../utility/socket')
+const { getSocket } = require('../../helper/socket')
 const postValidation = require('./validation/post')
 const sessionUser = require('./utils/get/user')
-const { upload } = require('../../utility/awsuploads')
+const { upload } = require('../../helper/awsuploads')
 const { Notification } = require('../../models/notification')
 const Comment = require('../../models/comment')
 

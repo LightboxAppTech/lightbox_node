@@ -1,6 +1,6 @@
 const SessionUser = require('./utils/get/get-user')
-const createThumbnail = require('../../utility/thumbnail')
-const { upload } = require('../../utility/awsuploads')
+const createThumbnail = require('../../helper/thumbnail')
+const { upload } = require('../../helper/awsuploads')
 const UserProfile = require('../../models/userProfile')
 const profileValidation = require('./validation/profile')
 

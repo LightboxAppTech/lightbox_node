@@ -1,6 +1,6 @@
 const UserProfile = require('../../models/userProfile')
 const User = require('../../models/user')
-const { getSocket } = require('../../utility/socket')
+const { getSocket } = require('../../helper/socket')
 const sessionUser = require('./utils/get/user')
 const { Notification } = require('../../models/notification')
 // const storeNotification = require("../../utility/notification");

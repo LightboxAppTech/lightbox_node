@@ -4,7 +4,7 @@ const Project = require('../../models/project')
 const UserProfile = require('../../models/userProfile')
 const User = require('../../models/userProfile')
 
-async function dashboard(req, res) {
+const dashboard = async (req, res) => {
   try {
     let page = req.query.page
     let resultsPerPage = 8

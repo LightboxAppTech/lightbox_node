@@ -35,7 +35,7 @@ const suggestion = async (req, res) => {
     })
 
     let flags = {}
-    let uniqueData = data.filter(function (d) {
+    let uniqueData = data.filter((d) => {
       if (flags[d.uid]) {
         return false
       }
@@ -93,7 +93,7 @@ const suggestion = async (req, res) => {
       })
     })
     flags = {}
-    uniqueData = suggestedConnections.filter(function (d) {
+    uniqueData = suggestedConnections.filter((d) => {
       if (flags[d.uid]) {
         return false
       }

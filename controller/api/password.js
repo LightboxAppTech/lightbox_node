@@ -4,7 +4,7 @@
 // const
 const VERIFICATIONCODE = { code: null, validUpTo: null }
 const ONEDAY = 24 * 60 * 60 * 1000
-const User = require('../../model/user')
+const User = require('../../models/user')
 const bcrypt = require('bcryptjs')
 const emailRegEx = RegExp(/^[a-zA-Z0-9._]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)
 

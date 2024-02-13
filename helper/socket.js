@@ -1,12 +1,12 @@
-const project = require('../model/project')
+const project = require('../models/project')
 const getUser = require('../controller/api/utils/get/getUid')
-const Room = require('../model/room')
+const Room = require('../models/room')
 
 const _socketConnection = new Map()
 const _refToId = new Map()
 let projectRooms = {}
 
-function addConnection(id, socketId) {
+const addConnection = (id, socketId) => {
   if (typeof id !== 'string' || typeof socketId !== 'string') {
     throw new Error('Invalid DataType')
   }
@@ -14,20 +14,20 @@ function addConnection(id, socketId) {
   _refToId.set(socketId, id)
 }
 
-function getConnection(id) {
+const getConnection = (id) => {
   if (typeof id !== 'string') {
     throw new Error('Invalid DataType')
   }
   return _socketConnection.get(id)
 }
 
-function removeConnection(socketID) {
+const removeConnection = (socketID) => {
   const uid = _refToId.get(socketID)
   _socketConnection.delete(uid)
   _refToId.delete(socketID)
 }
 
-function initSocket(io) {
+const initSocket = (io) => {
   try {
     io.on('connection', (socket) => {
       socket.on('auth', (data) => {

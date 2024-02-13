@@ -10,7 +10,7 @@ const getMetaData = (value) => {
   }
 }
 
-function generateRandomName(name, flag) {
+const generateRandomName = (name, flag) => {
   if (!flag) name += Date().toString()
   return crypto.createHash('sha256').update(name).digest('hex')
 }

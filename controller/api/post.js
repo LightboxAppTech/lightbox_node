@@ -1,11 +1,11 @@
-const Post = require('../../model/post')
-const UserProfile = require('../../model/user_profile')
-const { getSocket } = require('../../utility/socket')
+const Post = require('../../models/post')
+const UserProfile = require('../../models/userProfile')
+const { getSocket } = require('../../helper/socket')
 const postValidation = require('./validation/post')
 const sessionUser = require('./utils/get/user')
-const { upload } = require('../../utility/awsuploads')
-const { Notification } = require('../../model/notification')
-const Comment = require('../../model/comment')
+const { upload } = require('../../helper/awsuploads')
+const { Notification } = require('../../models/notification')
+const Comment = require('../../models/comment')
 
 const addOrUpdatePost = async (req, res) => {
   try {

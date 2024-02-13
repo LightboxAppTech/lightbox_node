@@ -1,5 +1,5 @@
 const SessionUser = require('./utils/get/user')
-const UserProfile = require('../../model/user_profile')
+const UserProfile = require('../../models/userProfile')
 
 module.exports = async (req, res) => {
   try {

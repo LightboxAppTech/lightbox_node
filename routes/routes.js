@@ -1,12 +1,9 @@
 const router = require('express').Router()
-const apiRouter = require('./api/api')
+const apiRouter = require('./api')
 
-try {
-  router.use('/api', apiRouter)
-  router.get('/', (req, res) => {
-    res.status(202).json({ message: 'welcome to lightbox' })
-  })
-} catch (err) {
-  console.error(err)
-}
+router.use('/api', apiRouter)
+router.get('/', (req, res) => {
+  res.status(202).json({ message: 'Welcome to Lightbox' })
+})
+
 module.exports = router

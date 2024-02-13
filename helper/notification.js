@@ -1,4 +1,4 @@
-const { Notification } = require('../model/notification')
+const { Notification } = require('../models/notification')
 
 module.exports = (uid, notification) => {
   return new Promise((resolve, reject) => {

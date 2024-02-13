@@ -1,5 +1,5 @@
 const sessionUser = require('./utils/get/user')
-const { Notification } = require('../../model/notification')
+const { Notification } = require('../../models/notification')
 
 const getNotifications = async (req, res) => {
   try {

@@ -1,8 +1,8 @@
-const UserProfile = require('../../model/user_profile')
-const User = require('../../model/user')
-const { getSocket } = require('../../utility/socket')
+const UserProfile = require('../../models/userProfile')
+const User = require('../../models/user')
+const { getSocket } = require('../../helper/socket')
 const sessionUser = require('./utils/get/user')
-const { Notification } = require('../../model/notification')
+const { Notification } = require('../../models/notification')
 // const storeNotification = require("../../utility/notification");
 
 const suggestion = async (req, res) => {
@@ -35,7 +35,7 @@ const suggestion = async (req, res) => {
     })
 
     let flags = {}
-    let uniqueData = data.filter(function (d) {
+    let uniqueData = data.filter((d) => {
       if (flags[d.uid]) {
         return false
       }
@@ -93,7 +93,7 @@ const suggestion = async (req, res) => {
       })
     })
     flags = {}
-    uniqueData = suggestedConnections.filter(function (d) {
+    uniqueData = suggestedConnections.filter((d) => {
       if (flags[d.uid]) {
         return false
       }

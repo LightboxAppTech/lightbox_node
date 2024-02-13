@@ -1,5 +1,5 @@
 require('dotenv').config()
-const User = require('../../model/user')
+const User = require('../../models/user')
 const bcrypt = require('bcryptjs')
 
 const ONEDAY = 24 * 60 * 60 * 1000
